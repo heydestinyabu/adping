@@ -1,6 +1,6 @@
 import { groups, contacts } from "@shared/schema";
 import { DiployError, asyncHandler as _dHandler, diployLogger, HTTP_STATUS } from "@diploy/core";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, or } from "drizzle-orm";
 import { Request, Response } from "express";
 import { db } from "server/db";
 
@@ -31,11 +31,48 @@ export const getGroups = async (req: Request, res: Response) => {
     const { channelId } = req.query;
 
     if (!channelId) {
+      let allData: any[] = [];
       if (user?.role === "superadmin") {
-        const allData = await db.select().from(groups);
-        return res.json({ success: true, groups: allData });
+        allData = await db.select().from(groups);
+      } else {
+        const ownerId = user?.role === 'team' ? user?.createdBy : user?.id;
+        allData = await db.select().from(groups).where(
+          or(
+            ownerId ? eq(groups.createdBy, ownerId) : sql`1=1`,
+            sql`${groups.createdBy} IS NULL`
+          )
+        );
       }
-      return res.status(400).json({ success: false, error: "channelId is required" });
+
+      // Also gather any distinct group tags existing on contacts
+      try {
+        const contactRows = await db.select({ groups: contacts.groups }).from(contacts);
+        const discoveredGroupNames = new Set<string>();
+        contactRows.forEach(row => {
+          if (Array.isArray(row.groups)) {
+            row.groups.forEach((g: any) => {
+              if (typeof g === "string" && g.trim()) discoveredGroupNames.add(g.trim());
+            });
+          }
+        });
+
+        const existingNames = new Set(allData.map(g => g.name?.toLowerCase()));
+        for (const name of Array.from(discoveredGroupNames)) {
+          if (!existingNames.has(name.toLowerCase())) {
+            allData.push({
+              id: `tag_${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+              name: name,
+              description: "Contact Segment",
+              channelId: null,
+              createdBy: null,
+            });
+          }
+        }
+      } catch (err) {
+        // Non-blocking
+      }
+
+      return res.json({ success: true, groups: allData });
     }
 
     const channelGroups = await db

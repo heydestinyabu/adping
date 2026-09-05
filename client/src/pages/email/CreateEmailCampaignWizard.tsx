@@ -96,7 +96,7 @@ export default function CreateEmailCampaignWizard() {
   });
 
   // Fetch contact groups
-  const { data: contactGroups = [] } = useQuery<any[]>({
+  const { data: rawGroupData } = useQuery<any>({
     queryKey: ["/api/groups"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/groups");
@@ -104,11 +104,17 @@ export default function CreateEmailCampaignWizard() {
     },
   });
 
-  // Search contacts with email for "certain user" selection
+  const contactGroups: any[] = useMemo(() => {
+    if (Array.isArray(rawGroupData)) return rawGroupData;
+    if (rawGroupData?.groups && Array.isArray(rawGroupData.groups)) return rawGroupData.groups;
+    return [];
+  }, [rawGroupData]);
+
+  // Search contacts and users with email for "certain user" selection
   const { data: contactsSearchResult, isLoading: isSearchingContacts } = useQuery<{ contacts: any[]; total: number }>({
     queryKey: ["/api/email/contacts-search", contactSearchQuery],
     queryFn: async () => {
-      const res = await apiRequest("GET", `/api/email/contacts-search?query=${encodeURIComponent(contactSearchQuery)}&limit=40`);
+      const res = await apiRequest("GET", `/api/email/contacts-search?query=${encodeURIComponent(contactSearchQuery)}&limit=60`);
       return res.json();
     },
   });
@@ -526,10 +532,10 @@ export default function CreateEmailCampaignWizard() {
                   <RadioGroupItem value="all" id="aud-all" className="mt-1" />
                   <div className="space-y-1 flex-1">
                     <Label htmlFor="aud-all" className="font-semibold text-sm cursor-pointer">
-                      All Contacts with Email Address
+                      All Platform Users & Contacts with Email Address
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      Automatically broadcasts to every contact in your database with an email address.
+                      Automatically broadcasts to every registered platform user and CRM contact in your database with an email address.
                     </p>
                   </div>
                 </div>
@@ -555,7 +561,7 @@ export default function CreateEmailCampaignWizard() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Search and choose individual user(s) or contact(s) to receive this email.
+                      Search and choose individual user(s) or contact(s) to receive this email broadcast.
                     </p>
 
                     {audienceType === "specific" && (
@@ -563,7 +569,7 @@ export default function CreateEmailCampaignWizard() {
                         <div className="relative">
                           <Search className="h-4 w-4 absolute left-3 top-2.5 text-muted-foreground" />
                           <Input
-                            placeholder="Search contacts by name or email..."
+                            placeholder="Search by name, email, or role..."
                             value={contactSearchQuery}
                             onChange={(e) => setContactSearchQuery(e.target.value)}
                             className="pl-9 h-9 text-xs"
@@ -571,14 +577,14 @@ export default function CreateEmailCampaignWizard() {
                         </div>
 
                         {/* Contacts List Box */}
-                        <div className="border rounded-xl max-h-56 overflow-y-auto bg-white dark:bg-card p-2 space-y-1 divide-y divide-border/40">
+                        <div className="border rounded-xl max-h-60 overflow-y-auto bg-white dark:bg-card p-2 space-y-1 divide-y divide-border/40">
                           {isSearchingContacts ? (
                             <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-                              <RefreshCw className="h-3.5 w-3.5 animate-spin" /> Searching contacts...
+                              <RefreshCw className="h-3.5 w-3.5 animate-spin" /> Searching users & contacts...
                             </div>
                           ) : availableContacts.length === 0 ? (
                             <div className="p-4 text-center text-xs text-muted-foreground">
-                              No contacts with valid email addresses found matching "{contactSearchQuery}".
+                              No users or contacts found matching "{contactSearchQuery}".
                             </div>
                           ) : (
                             availableContacts.map((c) => {
@@ -587,24 +593,38 @@ export default function CreateEmailCampaignWizard() {
                                 <div
                                   key={c.id}
                                   onClick={() => toggleContactSelection(c.id)}
-                                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+                                  className={`flex items-center justify-between p-2.5 rounded-lg cursor-pointer transition-colors ${
                                     isSelected ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200" : "hover:bg-slate-50 dark:hover:bg-muted/40"
                                   }`}
                                 >
-                                  <div className="flex items-center gap-2.5">
+                                  <div className="flex items-center gap-3">
                                     <input
                                       type="checkbox"
                                       checked={isSelected}
                                       onChange={() => toggleContactSelection(c.id)}
-                                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer"
                                     />
                                     <div>
-                                      <div className="font-semibold text-xs">{c.name}</div>
-                                      <div className="text-[11px] text-muted-foreground">{c.email}</div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-semibold text-xs text-slate-900 dark:text-white">{c.name}</span>
+                                        {c.type === "user" ? (
+                                          <Badge className="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 text-[10px] px-1.5 py-0 font-medium">
+                                            User ({c.role || "member"})
+                                          </Badge>
+                                        ) : (
+                                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-slate-500">
+                                            Contact
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <div className="text-[11px] text-muted-foreground flex items-center gap-2 mt-0.5">
+                                        <span>{c.email || "(no email on file)"}</span>
+                                        {c.phone && <span className="text-[10px] opacity-75">• {c.phone}</span>}
+                                      </div>
                                     </div>
                                   </div>
                                   {c.groups && c.groups.length > 0 && (
-                                    <Badge variant="outline" className="text-[10px]">
+                                    <Badge variant="secondary" className="text-[10px] font-normal">
                                       {c.groups[0]}
                                     </Badge>
                                   )}
@@ -677,18 +697,24 @@ export default function CreateEmailCampaignWizard() {
 
                     {audienceType === "group" && (
                       <div className="pt-3" onClick={(e) => e.stopPropagation()}>
-                        <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
-                          <SelectTrigger className="w-full sm:w-72">
-                            <SelectValue placeholder="Choose contact group..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {contactGroups.map((grp) => (
-                              <SelectItem key={grp.id} value={grp.id}>
-                                {grp.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        {contactGroups.length === 0 ? (
+                          <div className="text-xs text-amber-700 bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-900">
+                            No contact groups created yet. You can create groups under Contacts Management or select specific users/contacts above.
+                          </div>
+                        ) : (
+                          <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+                            <SelectTrigger className="w-full sm:w-72">
+                              <SelectValue placeholder="Choose contact group..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {contactGroups.map((grp) => (
+                                <SelectItem key={grp.id || grp.name} value={grp.id || grp.name}>
+                                  {grp.name} {grp.contact_count !== undefined ? `(${grp.contact_count})` : ""}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
                     )}
                   </div>

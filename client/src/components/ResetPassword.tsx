@@ -36,15 +36,26 @@ export default function ResetPassword({ email, otpCode, onReset }: Props) {
     return { level: 5, label: "Very Strong", color: "bg-green-600" };
   }, [newPassword]);
 
+  const getBarColor = (i: number, level: number) => {
+    if (i > level) return "bg-gray-200";
+    if (level === 1) return "bg-red-500";
+    if (level === 2) return "bg-orange-500";
+    if (level === 3) return "bg-yellow-500";
+    if (level === 4) return "bg-emerald-500";
+    return "bg-emerald-600";
+  };
+
   const handleReset = async () => {
     setError(null);
     if (!newPassword || !confirmPassword) return setError("All fields are required");
     if (newPassword !== confirmPassword) return setError("Passwords do not match");
+    if (newPassword.length < 8) return setError("Password must be at least 8 characters long for security");
+    if (passwordStrength.level <= 1) return setError("Password is too weak. Include a mix of letters, numbers, and special characters.");
 
     setIsLoading(true);
     try {
       await apiRequest("POST", "/api/auth/reset-password", { email, otpCode, newPassword });
-      toast({ title: "Password reset!", description: "You can now login." });
+      toast({ title: "Password reset successfully!", description: "You can now login with your new password." });
       onReset();
     } catch (err: any) {
       setError(err.message || "Failed to reset password");
@@ -63,12 +74,12 @@ export default function ResetPassword({ email, otpCode, onReset }: Props) {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
-          <ShieldCheck className="h-6 w-6 text-green-600" />
+        <div className="mx-auto w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
+          <ShieldCheck className="h-6 w-6 text-emerald-600" />
         </div>
         <h2 className="text-xl font-semibold text-gray-900">Set New Password</h2>
         <p className="text-sm text-gray-500">
-          Create a strong password to secure your account.
+          Create a strong, secure password (minimum 8 characters).
         </p>
       </div>
 
@@ -85,11 +96,11 @@ export default function ResetPassword({ email, otpCode, onReset }: Props) {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type={showNewPassword ? "text" : "password"}
-              placeholder="Enter new password"
+              placeholder="Enter new password (min 8 chars)"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
               autoFocus
             />
             <button
@@ -106,15 +117,20 @@ export default function ResetPassword({ email, otpCode, onReset }: Props) {
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div
                     key={i}
-                    className={`h-1 flex-1 rounded-full transition-colors ${
-                      i <= passwordStrength.level ? passwordStrength.color : "bg-gray-200"
-                    }`}
+                    className={`h-1.5 flex-1 rounded-full transition-colors ${getBarColor(i, passwordStrength.level)}`}
                   />
                 ))}
               </div>
-              <p className="text-xs text-gray-500">
-                Password strength: <span className="font-medium">{passwordStrength.label}</span>
-              </p>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-500">
+                  Strength: <span className="font-semibold text-gray-700">{passwordStrength.label}</span>
+                </span>
+                {newPassword.length < 8 ? (
+                  <span className="text-red-500 text-[11px]">Must be at least 8 characters</span>
+                ) : (
+                  <span className="text-emerald-600 text-[11px]">✓ Length requirement met</span>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -129,7 +145,7 @@ export default function ResetPassword({ email, otpCode, onReset }: Props) {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
             />
             <button
               type="button"
@@ -143,15 +159,15 @@ export default function ResetPassword({ email, otpCode, onReset }: Props) {
             <p className="text-xs text-red-500">Passwords do not match</p>
           )}
           {confirmPassword && newPassword && confirmPassword === newPassword && (
-            <p className="text-xs text-green-600">Passwords match</p>
+            <p className="text-xs text-emerald-600 font-medium">✓ Passwords match</p>
           )}
         </div>
       </div>
 
       <Button
         onClick={handleReset}
-        className="w-full bg-green-600 hover:bg-green-700"
-        disabled={isLoading}
+        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+        disabled={isLoading || (newPassword.length > 0 && newPassword.length < 8)}
       >
         {isLoading ? (
           <>

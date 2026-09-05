@@ -119,16 +119,47 @@ export class EmailCampaignController {
           let resolvedRecipients: RecipientItem[] = [];
 
           // Case 1: Specific Contacts / Certain User(s)
-          const targetContactIds = audienceParams?.contactIds || (audienceParams?.contactId ? [audienceParams.contactId] : []);
-          if ((audienceType === "specific" || audienceType === "users" || audienceType === "contacts_list") && targetContactIds.length > 0) {
-            const selected = await db.select().from(contacts).where(inArray(contacts.id, targetContactIds));
-            for (const c of selected) {
-              if (c.email && c.email.trim() && c.email.includes("@")) {
-                resolvedRecipients.push({
-                  contactId: c.id,
-                  email: c.email.trim(),
-                  name: c.name || c.email.split("@")[0]
-                });
+          const rawTargetIds = audienceParams?.contactIds || (audienceParams?.contactId ? [audienceParams.contactId] : []);
+          if ((audienceType === "specific" || audienceType === "users" || audienceType === "contacts_list") && rawTargetIds.length > 0) {
+            const userIds: string[] = [];
+            const contactIdsList: string[] = [];
+
+            for (const id of rawTargetIds) {
+              if (typeof id === "string" && id.startsWith("user_")) {
+                userIds.push(id.replace(/^user_/, ""));
+              } else if (typeof id === "string" && id.startsWith("contact_")) {
+                contactIdsList.push(id.replace(/^contact_/, ""));
+              } else {
+                userIds.push(id);
+                contactIdsList.push(id);
+              }
+            }
+
+            if (userIds.length > 0) {
+              const { users } = await import("@shared/schema");
+              const userRows = await db.select().from(users).where(inArray(users.id, userIds));
+              for (const u of userRows) {
+                if (u.email && u.email.trim() && u.email.includes("@")) {
+                  const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
+                  resolvedRecipients.push({
+                    contactId: null,
+                    email: u.email.trim(),
+                    name: fullName
+                  });
+                }
+              }
+            }
+
+            if (contactIdsList.length > 0) {
+              const selected = await db.select().from(contacts).where(inArray(contacts.id, contactIdsList));
+              for (const c of selected) {
+                if (c.email && c.email.trim() && c.email.includes("@")) {
+                  resolvedRecipients.push({
+                    contactId: c.id,
+                    email: c.email.trim(),
+                    name: c.name || c.email.split("@")[0]
+                  });
+                }
               }
             }
           }
@@ -159,12 +190,13 @@ export class EmailCampaignController {
                 .from(groupsTable)
                 .where(inArray(groupsTable.id, rawGroupIds));
               const groupNames = groupRows.map(r => r.name);
+              const targetNames = Array.from(new Set([...groupNames, ...rawGroupIds]));
 
-              if (groupNames.length > 0) {
+              if (targetNames.length > 0) {
                 const allContacts = await db.select().from(contacts);
                 const matched = allContacts.filter(c => {
                   const cGroups: string[] = (c.groups as any) || [];
-                  return groupNames.some(name => cGroups.includes(name));
+                  return targetNames.some(name => cGroups.includes(name) || name === c.id);
                 });
                 for (const c of matched) {
                   if (c.email && c.email.trim() && c.email.includes("@")) {
@@ -178,8 +210,9 @@ export class EmailCampaignController {
               }
             }
           }
-          // Case 4: All Contacts with email (audienceType === "all" OR "contacts")
+          // Case 4: All Contacts & Registered Users with email
           else {
+            const { users } = await import("@shared/schema");
             const allContacts = await db.select().from(contacts);
             for (const c of allContacts) {
               if (c.email && c.email.trim() && c.email.includes("@")) {
@@ -187,6 +220,18 @@ export class EmailCampaignController {
                   contactId: c.id,
                   email: c.email.trim(),
                   name: c.name || c.email.split("@")[0]
+                });
+              }
+            }
+
+            const allUsers = await db.select().from(users);
+            for (const u of allUsers) {
+              if (u.email && u.email.trim() && u.email.includes("@")) {
+                const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
+                resolvedRecipients.push({
+                  contactId: null,
+                  email: u.email.trim(),
+                  name: fullName
                 });
               }
             }
@@ -548,7 +593,7 @@ export class EmailCampaignController {
   static async getAudienceEstimate(req: Request, res: Response) {
     try {
       const { audienceType = "all", groupId, groupIds, contactIds, manualEmails } = req.query;
-      const { contacts, groups } = await import("@shared/schema");
+      const { contacts, groups, users } = await import("@shared/schema");
 
       let resolved: Array<{ name: string; email: string }> = [];
 
@@ -556,8 +601,33 @@ export class EmailCampaignController {
         const idList = Array.isArray(contactIds)
           ? (contactIds as string[])
           : String(contactIds).split(",").map(s => s.trim()).filter(Boolean);
-        if (idList.length > 0) {
-          const rows = await db.select().from(contacts).where(inArray(contacts.id, idList));
+
+        const userIds: string[] = [];
+        const contactIdsList: string[] = [];
+
+        for (const id of idList) {
+          if (typeof id === "string" && id.startsWith("user_")) {
+            userIds.push(id.replace(/^user_/, ""));
+          } else if (typeof id === "string" && id.startsWith("contact_")) {
+            contactIdsList.push(id.replace(/^contact_/, ""));
+          } else {
+            userIds.push(id);
+            contactIdsList.push(id);
+          }
+        }
+
+        if (userIds.length > 0) {
+          const userRows = await db.select().from(users).where(inArray(users.id, userIds));
+          for (const u of userRows) {
+            if (u.email && u.email.trim() && u.email.includes("@")) {
+              const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
+              resolved.push({ name: fullName, email: u.email.trim() });
+            }
+          }
+        }
+
+        if (contactIdsList.length > 0) {
+          const rows = await db.select().from(contacts).where(inArray(contacts.id, contactIdsList));
           for (const r of rows) {
             if (r.email && r.email.trim() && r.email.includes("@")) {
               resolved.push({ name: r.name, email: r.email.trim() });
@@ -574,10 +644,12 @@ export class EmailCampaignController {
         if (rawGroups.length > 0) {
           const groupRows = await db.select({ name: groups.name }).from(groups).where(inArray(groups.id, rawGroups));
           const groupNames = groupRows.map(g => g.name);
+          const targetNames = Array.from(new Set([...groupNames, ...rawGroups]));
+
           const allContacts = await db.select().from(contacts);
           const matched = allContacts.filter(c => {
             const cGroups: string[] = (c.groups as any) || [];
-            return groupNames.some(gn => cGroups.includes(gn));
+            return targetNames.some(gn => cGroups.includes(gn) || gn === c.id);
           });
           for (const c of matched) {
             if (c.email && c.email.trim() && c.email.includes("@")) {
@@ -586,11 +658,19 @@ export class EmailCampaignController {
           }
         }
       } else {
-        // All contacts with email
+        // All contacts with email + platform registered users with email
         const allContacts = await db.select().from(contacts);
         for (const c of allContacts) {
           if (c.email && c.email.trim() && c.email.includes("@")) {
             resolved.push({ name: c.name, email: c.email.trim() });
+          }
+        }
+
+        const allUsers = await db.select().from(users);
+        for (const u of allUsers) {
+          if (u.email && u.email.trim() && u.email.includes("@")) {
+            const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
+            resolved.push({ name: fullName, email: u.email.trim() });
           }
         }
       }
@@ -614,28 +694,59 @@ export class EmailCampaignController {
 
   static async searchContactsWithEmail(req: Request, res: Response) {
     try {
-      const { query = "", limit = 50 } = req.query;
-      const { contacts } = await import("@shared/schema");
-
-      const all = await db.select().from(contacts);
+      const { query = "", limit = 80 } = req.query;
+      const { contacts, users } = await import("@shared/schema");
       const q = String(query).toLowerCase().trim();
 
-      const filtered = all.filter(c => {
+      const combined: Array<{
+        id: string;
+        name: string;
+        email: string;
+        phone?: string | null;
+        type: "user" | "contact";
+        role?: string;
+        groups?: string[];
+      }> = [];
+
+      // 1. Platform Registered Users (always have email)
+      const allUsers = await db.select().from(users);
+      for (const u of allUsers) {
+        const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
+        const matches = !q || fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.username.toLowerCase().includes(q);
+        if (matches && u.email && u.email.includes("@")) {
+          combined.push({
+            id: `user_${u.id}`,
+            name: fullName,
+            email: u.email.trim(),
+            type: "user",
+            role: u.role || "user",
+            groups: ["Platform User"],
+          });
+        }
+      }
+
+      // 2. CRM Contacts
+      const allContacts = await db.select().from(contacts);
+      for (const c of allContacts) {
         const hasEmail = Boolean(c.email && c.email.trim() && c.email.includes("@"));
-        if (!hasEmail) return false;
-        if (!q) return true;
-        return (c.name && c.name.toLowerCase().includes(q)) || (c.email && c.email.toLowerCase().includes(q));
-      });
+        const matches = !q || (c.name && c.name.toLowerCase().includes(q)) || (c.email && c.email.toLowerCase().includes(q)) || (c.phone && c.phone.includes(q));
+        if (matches) {
+          // If contact has email, use it. If phone is an email format, fallback to phone.
+          const contactEmail = hasEmail ? c.email!.trim() : (c.phone && c.phone.includes("@") ? c.phone.trim() : "");
+          combined.push({
+            id: `contact_${c.id}`,
+            name: c.name || "Unnamed Contact",
+            email: contactEmail,
+            phone: c.phone,
+            type: "contact",
+            groups: (c.groups as string[]) || [],
+          });
+        }
+      }
 
       res.json({
-        contacts: filtered.slice(0, Number(limit)).map(c => ({
-          id: c.id,
-          name: c.name,
-          email: c.email?.trim(),
-          phone: c.phone,
-          groups: c.groups || [],
-        })),
-        total: filtered.length
+        contacts: combined.slice(0, Number(limit)),
+        total: combined.length
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message });

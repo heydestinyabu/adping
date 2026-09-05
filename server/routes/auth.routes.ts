@@ -286,6 +286,10 @@ router.post("/reset-password", async (req, res) => {
       return res.status(400).json({ error: "Email and new password are required" });
     }
 
+    if (typeof newPassword !== "string" || newPassword.length < 8) {
+      return res.status(400).json({ error: "Password must be at least 8 characters long for security" });
+    }
+
     // Find user
     const existingUser = await db
       .select()

@@ -7,6 +7,7 @@ export interface EmailTemplateDefinition {
   thumbnailColor: string;
   description: string;
   htmlContent: string;
+  isSystem?: boolean;
 }
 
 export const SYSTEM_TEMPLATES: EmailTemplateDefinition[] = [

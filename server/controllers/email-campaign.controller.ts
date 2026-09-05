@@ -465,15 +465,19 @@ export class EmailCampaignController {
       }
 
       const providerDetails = await EmailProviderFactory.getActiveProviderDetails();
-      const actualFromEmail = fromEmail || providerDetails?.defaultFromEmail || "onboarding@resend.dev";
+      const actualFromEmail = fromEmail || providerDetails?.defaultFromEmail || "noreply@adping.com";
       const actualFromName = fromName || "ADping";
 
-      await provider.send({
-        to: recipientEmail,
-        from: `${actualFromName} <${actualFromEmail}>`,
+      const result = await provider.send({
+        from: { name: actualFromName, email: actualFromEmail },
+        to: [{ email: recipientEmail }],
         subject: `[TEST] ${subject}`,
         html: htmlContent,
       });
+
+      if (!result.success) {
+        throw new Error(result.error || "Provider failed to send test email");
+      }
 
       res.json({ success: true, message: `Test email sent to ${recipientEmail}` });
     } catch (err: any) {

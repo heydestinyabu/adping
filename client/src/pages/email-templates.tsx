@@ -72,21 +72,39 @@ export default function EmailTemplatesPage() {
 
   // Combine database templates with built-in system templates if not already present in DB
   const allTemplates = useMemo(() => {
-    const list = [...(templates || [])];
-    // Check if any system template is missing from DB list
+    const list = [...(templates || [])].map((t: any) => ({
+      ...t,
+      isSystem: Boolean(t.isSystem || String(t.id).startsWith("sys-"))
+    }));
+
+    // Inject system templates
     for (const sys of SYSTEM_TEMPLATES) {
-      if (!list.some(t => t.name.toLowerCase() === sys.name.toLowerCase())) {
-        list.push({ ...sys, id: `sys-${sys.name.toLowerCase().replace(/\s+/g, '-')}` });
+      const matchIndex = list.findIndex((t: any) => t.name.toLowerCase() === sys.name.toLowerCase());
+      if (matchIndex === -1) {
+        list.push({
+          ...sys,
+          id: `sys-${sys.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+          isSystem: true
+        });
+      } else {
+        list[matchIndex] = {
+          ...list[matchIndex],
+          isSystem: true
+        };
       }
     }
     return list;
   }, [templates]);
 
+  const systemCount = useMemo(() => allTemplates.filter(t => t.isSystem).length, [allTemplates]);
+  const customCount = useMemo(() => allTemplates.filter(t => !t.isSystem).length, [allTemplates]);
+
   // Filter templates
   const filteredTemplates = useMemo(() => {
     return allTemplates.filter(t => {
-      if (selectedTab === "custom" && t.isSystem) return false;
-      if (selectedTab === "system" && !t.isSystem) return false;
+      const isSys = Boolean(t.isSystem || String(t.id).startsWith("sys-"));
+      if (selectedTab === "custom" && isSys) return false;
+      if (selectedTab === "system" && !isSys) return false;
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
       return (
@@ -180,7 +198,7 @@ export default function EmailTemplatesPage() {
                     selectedTab === "system" ? "bg-emerald-700 text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  <Sparkles className="w-3 h-3 text-emerald-400" /> System Templates ({SYSTEM_TEMPLATES.length})
+                  <Sparkles className="w-3 h-3 text-emerald-400" /> System Templates ({systemCount})
                 </button>
                 <button
                   type="button"
@@ -189,7 +207,7 @@ export default function EmailTemplatesPage() {
                     selectedTab === "custom" ? "bg-emerald-700 text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  My Templates ({templates.filter((t: any) => !t.isSystem).length})
+                  My Templates ({customCount})
                 </button>
               </div>
 
@@ -218,13 +236,24 @@ export default function EmailTemplatesPage() {
             ) : filteredTemplates.length === 0 ? (
               <div className="text-center py-16 border-2 border-dashed rounded-xl bg-white p-8">
                 <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <h3 className="text-base font-semibold text-gray-900">No templates found</h3>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {selectedTab === "custom" ? "No custom templates yet" : "No templates found"}
+                </h3>
                 <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 mb-4">
-                  {searchQuery ? "Try refining your search query." : "Get started by customizing one of the built-in system templates or create a blank one."}
+                  {selectedTab === "custom" 
+                    ? "You haven't created or cloned any templates yet. You can clone any ready-made system template or start from scratch." 
+                    : searchQuery ? "Try refining your search query." : "No templates match the selected criteria."}
                 </p>
-                <Button onClick={handleCreateNew} className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs">
-                  <Plus className="w-3.5 h-3.5 mr-1" /> New Template
-                </Button>
+                <div className="flex items-center justify-center gap-2">
+                  {selectedTab === "custom" && (
+                    <Button variant="outline" size="sm" onClick={() => setSelectedTab("system")} className="text-xs">
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5 text-emerald-600" /> Browse System Templates
+                    </Button>
+                  )}
+                  <Button onClick={handleCreateNew} className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs">
+                    <Plus className="w-3.5 h-3.5 mr-1" /> New Template
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

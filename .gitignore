@@ -28,5 +28,6 @@ dist-release/
 .local/
 .config/
 attached_assets/
+*.sql
 
 

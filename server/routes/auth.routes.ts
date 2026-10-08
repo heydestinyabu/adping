@@ -259,7 +259,7 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
 
     // Send OTP via email
     try {
-      await sendOTPEmail(email, otpCode, userName);
+      await sendOTPEmail(email, otpCode, userName || undefined);
       console.log(`✉️ OTP sent to ${email} ${otpCode} `);
     } catch (emailError) {
       console.error("⚠️ Failed to send OTP email:", emailError);
@@ -308,8 +308,10 @@ router.post("/reset-password", async (req, res) => {
       .select()
       .from(otpVerifications)
       .where(
-        eq(otpVerifications.userId, userId),
-        eq(otpVerifications.isUsed, false)
+        and(
+          eq(otpVerifications.userId, userId),
+          eq(otpVerifications.isUsed, false)
+        )
       )
       .limit(1);
 

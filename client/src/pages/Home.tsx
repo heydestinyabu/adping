@@ -1,6 +1,7 @@
 import React from "react";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
+import ProductSuiteShowcase from "@/components/ProductSuiteShowcase";
 import HowItWorks from "@/components/HowItWorks";
 import UseCases from "@/components/UseCases";
 import Testimonials from "@/components/Testimonials";
@@ -23,12 +24,10 @@ const Home = () => {
       {/* <Header /> */}
       <Hero />
       <Features />
+      <ProductSuiteShowcase />
       <HowItWorks />
       <UseCases />
       <Testimonials />
-      {paymentProviders?.success && paymentProviders?.data?.length > 0 && (
-        <Pricing />
-      )}
       <CTA />
       {/* <Footer /> */}
     </>

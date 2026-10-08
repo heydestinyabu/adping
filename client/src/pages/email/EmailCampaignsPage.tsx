@@ -156,7 +156,7 @@ export default function EmailCampaignsPage() {
               className="gap-1.5"
             >
               <FileText className="h-4 w-4" />
-              Templates
+              Email Templates
             </Button>
             <Button
               variant="outline"
@@ -172,7 +172,7 @@ export default function EmailCampaignsPage() {
               className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-sm"
             >
               <Plus className="h-4 w-4" />
-              Create Campaign
+              Create Email Campaign
             </Button>
           </div>
         </div>

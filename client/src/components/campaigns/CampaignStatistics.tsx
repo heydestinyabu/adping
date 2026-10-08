@@ -108,7 +108,7 @@ export function CampaignStatistics({ campaigns, stats: statsProp }: CampaignStat
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">
-                {t("campaigns.totalCampaigns")}
+                Total WhatsApp Campaigns
               </p>
               <p className="text-2xl font-bold">{stats.totalCampaigns}</p>
               <p className="text-xs text-muted-foreground mt-1">

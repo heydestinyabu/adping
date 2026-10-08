@@ -1,5 +1,7 @@
-// components/common/MinimalLoader.tsx
 import React, { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { AppSettings } from "@/types/types";
+import adpingLogo from "@/images/adping-logo.svg";
 
 interface MinimalLoaderProps {
   onComplete?: () => void;
@@ -10,10 +12,16 @@ interface MinimalLoaderProps {
 
 const MinimalLoader: React.FC<MinimalLoaderProps> = ({
   onComplete,
-  duration = 2000,
-  color = "green",
-  variant = "spinner",
+  duration = 0,
 }) => {
+  const { data: brandSettings } = useQuery<AppSettings>({
+    queryKey: ["/api/brand-settings"],
+    queryFn: () => fetch("/api/brand-settings").then((res) => res.json()),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const logoSrc = brandSettings?.logo || adpingLogo;
+
   useEffect(() => {
     if (onComplete && duration > 0) {
       const timer = setTimeout(() => {
@@ -24,144 +32,51 @@ const MinimalLoader: React.FC<MinimalLoaderProps> = ({
     }
   }, [onComplete, duration]);
 
-  const colorClasses = {
-    green: {
-      primary: "border-green-600",
-      secondary: "bg-green-600",
-      gradient: "from-green-400 to-emerald-600",
-    },
-    blue: {
-      primary: "border-blue-600",
-      secondary: "bg-blue-600",
-      gradient: "from-blue-400 to-indigo-600",
-    },
-    gray: {
-      primary: "border-gray-600",
-      secondary: "bg-gray-600",
-      gradient: "from-gray-400 to-gray-600",
-    },
-  };
-
-  const colors =
-    colorClasses[color as keyof typeof colorClasses] || colorClasses.green;
-
-  // Variant 1: Enhanced Spinner with Gradient
-  if (variant === "spinner") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
-        <div className="relative">
-          {/* Outer ring with glow */}
-          <div className="absolute inset-0 blur-xl opacity-30">
-            <div
-              className={`w-20 h-20 border-4 ${colors.primary} rounded-full animate-spin`}
-            />
-          </div>
-
-          {/* Main spinner */}
-          <div
-            className={`w-20 h-20 border-4 border-t-transparent ${colors.primary} rounded-full animate-spin`}
-            style={{ animationDuration: "0.8s" }}
-          />
-
-          {/* Inner dot */}
-          <div
-            className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 ${colors.secondary} rounded-full animate-pulse`}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Variant 2: Pulsing Circles
-  if (variant === "pulse") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
-        <div className="relative w-24 h-24">
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className={`absolute inset-0 ${colors.secondary} rounded-full opacity-20 animate-ping`}
-              style={{
-                animationDelay: `${i * 0.3}s`,
-                animationDuration: "1.5s",
-              }}
-            />
-          ))}
-          <div
-            className={`absolute inset-0 m-auto w-12 h-12 ${colors.secondary} rounded-full`}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Variant 3: Bouncing Dots
-  if (variant === "dots") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
-        <div className="flex space-x-3">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className={`w-4 h-4 ${colors.secondary} rounded-full animate-bounce`}
-              style={{
-                animationDelay: `${i * 0.15}s`,
-                animationDuration: "0.6s",
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Variant 4: Ring Loader
-  if (variant === "ring") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
-        <div className="relative w-20 h-20">
-          <div
-            className={`absolute inset-0 border-4 border-gray-200 rounded-full`}
-          />
-          <div
-            className={`absolute inset-0 border-4 border-t-transparent ${colors.primary} rounded-full animate-spin`}
-            style={{ animationDuration: "1s" }}
-          />
-          <div
-            className={`absolute inset-2 border-4 border-b-transparent ${colors.primary} opacity-50 rounded-full animate-spin`}
-            style={{ animationDuration: "1.5s", animationDirection: "reverse" }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Variant 5: Dual Ring (Default Enhanced)
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
-      <div className="relative">
-        {/* Glow effect */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-r ${colors.gradient} rounded-full blur-2xl opacity-20 animate-pulse`}
-        />
-
-        {/* Outer ring */}
-        <div
-          className={`w-24 h-24 border-[6px] border-t-transparent border-r-transparent ${colors.primary} rounded-full animate-spin`}
-          style={{ animationDuration: "1.2s" }}
-        />
-
-        {/* Inner ring counter-rotating */}
-        <div
-          className={`absolute inset-0 m-4 border-[6px] border-b-transparent border-l-transparent ${colors.primary} opacity-40 rounded-full animate-spin`}
-          style={{ animationDuration: "0.8s", animationDirection: "reverse" }}
-        />
-
-        {/* Center dot with pulse */}
-        <div
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-gradient-to-r ${colors.gradient} rounded-full animate-pulse shadow-lg`}
-        />
+    <div className="flex flex-col items-center justify-center min-h-[50vh] w-full p-6 select-none">
+      {/* Subtle glowing halo */}
+      <div className="relative mb-5 flex items-center justify-center">
+        <div className="absolute -inset-3 bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-blue-500/15 rounded-2xl blur-sm animate-pulse" />
+        <div className="relative bg-white dark:bg-slate-900 px-5 py-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-emerald-500/5">
+          <img
+            src={logoSrc}
+            alt={brandSettings?.title || "ADping"}
+            className="h-10 sm:h-12 w-auto object-contain transition-transform duration-700 animate-[logoPulse_2s_ease-in-out_infinite]"
+          />
+        </div>
       </div>
+
+      {/* Modern micro progress bar */}
+      <div className="w-36 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden relative">
+        <div className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 rounded-full animate-[miniBar_1.2s_cubic-bezier(0.65,0,0.35,1)_infinite]" />
+      </div>
+
+      <style>{`
+        @keyframes miniBar {
+          0% {
+            left: -40%;
+            width: 30%;
+          }
+          50% {
+            left: 30%;
+            width: 50%;
+          }
+          100% {
+            left: 100%;
+            width: 30%;
+          }
+        }
+        @keyframes logoPulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.95;
+          }
+          50% {
+            transform: scale(1.03);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 };

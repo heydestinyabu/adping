@@ -25,7 +25,6 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            if (id.includes("@xyflow")) return "vendor-flow";
             if (id.includes("chart.js") || id.includes("react-chartjs-2")) return "vendor-charts";
             if (id.includes("lucide-react") || id.includes("react-icons")) return "vendor-icons";
             if (id.includes("@radix-ui") || id.includes("framer-motion")) return "vendor-ui";
@@ -36,6 +35,21 @@ export default defineConfig({
     },
   },
   server: {
+    port: 5173,
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
+      "/ws": {
+        target: "ws://localhost:3000",
+        ws: true,
+      },
+      "/socket.io": {
+        target: "http://localhost:3000",
+        ws: true,
+      },
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],

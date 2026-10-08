@@ -1,3 +1,15 @@
+export interface TemplateCustomFields {
+  badge?: string;
+  headline?: string;
+  greeting?: string;
+  bodyText?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  calloutTitle?: string;
+  calloutText?: string;
+  footerText?: string;
+}
+
 export interface EmailTemplateDefinition {
   id?: string;
   name: string;
@@ -8,625 +20,446 @@ export interface EmailTemplateDefinition {
   description: string;
   htmlContent: string;
   isSystem?: boolean;
+  defaultFields?: TemplateCustomFields;
+}
+
+export function applyTemplateFields(html: string, fields: Partial<TemplateCustomFields>): string {
+  let result = html;
+  for (const [key, value] of Object.entries(fields)) {
+    if (value === undefined || value === null) continue;
+    // Replace text between editable tags
+    const regex = new RegExp(`<!-- EDITABLE:${key} -->[\\s\\S]*?<!-- /EDITABLE:${key} -->`, "g");
+    result = result.replace(regex, `<!-- EDITABLE:${key} -->${value}<!-- /EDITABLE:${key} -->`);
+  }
+  return result;
+}
+
+export function extractTemplateFields(html: string, defaults?: TemplateCustomFields): TemplateCustomFields {
+  const fields: TemplateCustomFields = { ...(defaults || {}) };
+  const keys: (keyof TemplateCustomFields)[] = [
+    "badge",
+    "headline",
+    "greeting",
+    "bodyText",
+    "buttonText",
+    "buttonUrl",
+    "calloutTitle",
+    "calloutText",
+    "footerText"
+  ];
+  for (const key of keys) {
+    const regex = new RegExp(`<!-- EDITABLE:${key} -->([\\s\\S]*?)<!-- /EDITABLE:${key} -->`);
+    const match = html.match(regex);
+    if (match && match[1] !== undefined) {
+      fields[key] = match[1].trim();
+    }
+  }
+  return fields;
 }
 
 export const SYSTEM_TEMPLATES: EmailTemplateDefinition[] = [
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 1. WELCOME & ONBOARDING
+  // ─────────────────────────────────────────────────────────────────────────────
   {
     name: "Welcome & Getting Started",
-    subject: "Welcome to ADping, {{firstName}}! Let's get you set up",
-    previewText: "Your all-in-one messaging and email growth suite is ready.",
-    category: "Onboarding",
-    thumbnailColor: "#00A854",
-    description: "A warm, high-converting onboarding email with getting started steps and primary CTA.",
+    subject: "Welcome to {{companyName}}! Let's get you set up 🚀",
+    previewText: "Everything you need to get the most out of your new account in 3 easy steps.",
+    category: "Welcome & Onboarding",
+    thumbnailColor: "#2563EB",
+    description: "A clean, high-conversion welcome email with getting-started milestones and clear call-to-action.",
+    defaultFields: {
+      badge: "🎉 WELCOME ABOARD",
+      headline: "We are thrilled to have you with us!",
+      greeting: "Hi {{firstName}},",
+      bodyText: "Thank you for joining {{companyName}}. You are now part of a community of forward-thinking teams using our platform to connect, engage, and grow faster. To help you hit the ground running, we've prepared a quick 3-step checklist to guide your first win.",
+      buttonText: "Go to Your Dashboard →",
+      buttonUrl: "https://example.com/dashboard",
+      calloutTitle: "Quick 3-Minute Quickstart:",
+      calloutText: "1. Complete your workspace profile\n2. Invite your team members or collaborators\n3. Launch your first automated broadcast in under 2 minutes",
+      footerText: "Sent with ❤️ by {{companyName}} • Need help? Reply directly to this email."
+    },
     htmlContent: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to ADping</title>
+  <title>Welcome to {{companyName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; padding: 0; }
+    .email-card { max-width: 580px; margin: 30px auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .email-header { background: #2563eb; padding: 32px 28px; text-align: left; }
+    .email-body { padding: 32px 28px; }
+    .badge { display: inline-block; background: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 9999px; margin-bottom: 16px; }
+    .btn { display: inline-block; background: #2563eb; color: #ffffff !important; padding: 14px 28px; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 10px; margin: 20px 0; }
+    .callout { background: #f8fafc; border-left: 4px solid #2563eb; padding: 18px 20px; border-radius: 8px; margin: 24px 0; font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-line; }
+    .footer { border-top: 1px solid #f1f5f9; padding: 24px 28px; font-size: 12px; color: #94a3b8; text-align: center; }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 30px 15px;">
-    <tr>
-      <td align="center">
-        <!-- Main Container -->
-        <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid #E2E8F0;">
-          
-          <!-- Brand Header -->
-          <tr>
-            <td style="padding: 36px 40px 24px; text-align: center; background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); border-bottom: 1px solid #EDF2F7;">
-              <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
-                <tr>
-                  <td style="background-color: #01594F; width: 36px; height: 36px; border-radius: 10px; text-align: center; vertical-align: middle;">
-                    <span style="color: #00C853; font-size: 20px; font-weight: bold; line-height: 36px;">▲</span>
-                  </td>
-                  <td style="padding-left: 12px; text-align: left;">
-                    <span style="font-size: 26px; font-weight: 900; color: #01594F; letter-spacing: -0.5px;">AD</span><span style="font-size: 26px; font-weight: 800; color: #00A854;">ping</span>
-                  </td>
-                </tr>
-              </table>
-              <div style="margin-top: 8px; font-size: 11px; font-weight: 700; color: #01594F; letter-spacing: 3px;">REACH. ENGAGE. CONVERT.</div>
-            </td>
-          </tr>
-
-          <!-- Hero Content -->
-          <tr>
-            <td style="padding: 36px 40px 20px;">
-              <div style="display: inline-block; background-color: #DCFCE7; color: #15803D; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px;">
-                🎉 WELCOME ABOARD
-              </div>
-              <h1 style="margin: 0 0 16px; font-size: 28px; font-weight: 800; color: #0F172A; line-height: 1.3;">
-                Hi {{firstName}}, welcome to next-level growth!
-              </h1>
-              <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #475569;">
-                We're excited to have you with us. With <strong>ADping</strong>, you now have the ultimate omnichannel powerhouse to broadcast campaigns, automate customer journeys, and drive conversions across email and messaging channels.
-              </p>
-            </td>
-          </tr>
-
-          <!-- 3 Step Getting Started Card -->
-          <tr>
-            <td style="padding: 0 40px 28px;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px;">
-                <tr>
-                  <td style="padding-bottom: 14px;">
-                    <strong style="font-size: 14px; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px;">Get Started in 3 Fast Steps:</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #EDF2F7;">
-                    <table border="0" cellspacing="0" cellpadding="0">
-                      <tr>
-                        <td style="width: 24px; height: 24px; background-color: #00A854; color: #FFFFFF; font-size: 12px; font-weight: bold; border-radius: 50%; text-align: center; vertical-align: middle;">1</td>
-                        <td style="padding-left: 12px; font-size: 14px; color: #334155;"><strong>Verify Your Sender Identity</strong> — Ensure top deliverability.</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #EDF2F7;">
-                    <table border="0" cellspacing="0" cellpadding="0">
-                      <tr>
-                        <td style="width: 24px; height: 24px; background-color: #00A854; color: #FFFFFF; font-size: 12px; font-weight: bold; border-radius: 50%; text-align: center; vertical-align: middle;">2</td>
-                        <td style="padding-left: 12px; font-size: 14px; color: #334155;"><strong>Add Your Audience</strong> — Import contacts or paste direct lists.</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0;">
-                    <table border="0" cellspacing="0" cellpadding="0">
-                      <tr>
-                        <td style="width: 24px; height: 24px; background-color: #00A854; color: #FFFFFF; font-size: 12px; font-weight: bold; border-radius: 50%; text-align: center; vertical-align: middle;">3</td>
-                        <td style="padding-left: 12px; font-size: 14px; color: #334155;"><strong>Launch Your First Campaign</strong> — Hit inboxes in seconds.</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Primary CTA Button -->
-          <tr>
-            <td style="padding: 0 40px 36px; text-align: center;">
-              <a href="https://adping.com/dashboard" style="display: inline-block; background-color: #00A854; color: #FFFFFF; font-size: 16px; font-weight: 700; text-decoration: none; padding: 14px 36px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0, 168, 84, 0.35);">
-                Launch Your First Campaign →
-              </a>
-              <div style="margin-top: 14px; font-size: 12px; color: #94A3B8;">No credit card required. Free live support available.</div>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 24px 40px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0 0 8px; font-size: 12px; color: #64748B;">
-                Sent with ❤️ by <strong>ADping</strong> — Reach. Engage. Convert.
-              </p>
-              <p style="margin: 0; font-size: 11px; color: #94A3B8;">
-                You received this email because you registered on our platform. 
-                <a href="{{unsubscribe_url}}" style="color: #64748B; text-decoration: underline;">Unsubscribe</a> or manage preferences.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body>
+  <div class="email-card">
+    <div class="email-header">
+      <h2 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">{{companyName}}</h2>
+    </div>
+    <div class="email-body">
+      <span class="badge"><!-- EDITABLE:badge -->🎉 WELCOME ABOARD<!-- /EDITABLE:badge --></span>
+      <h1 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; line-height: 1.3;"><!-- EDITABLE:headline -->We are thrilled to have you with us!<!-- /EDITABLE:headline --></h1>
+      <p style="font-size: 15px; font-weight: 600; color: #334155; margin: 0 0 12px 0;"><!-- EDITABLE:greeting -->Hi {{firstName}},<!-- /EDITABLE:greeting --></p>
+      <p style="font-size: 15px; line-height: 1.65; color: #475569; margin: 0 0 20px 0;"><!-- EDITABLE:bodyText -->Thank you for joining {{companyName}}. You are now part of a community of forward-thinking teams using our platform to connect, engage, and grow faster. To help you hit the ground running, we've prepared a quick 3-step checklist to guide your first win.<!-- /EDITABLE:bodyText --></p>
+      <div style="text-align: center;">
+        <a href="<!-- EDITABLE:buttonUrl -->https://example.com/dashboard<!-- /EDITABLE:buttonUrl -->" class="btn"><!-- EDITABLE:buttonText -->Go to Your Dashboard →<!-- /EDITABLE:buttonText --></a>
+      </div>
+      <div class="callout">
+        <strong style="color: #0f172a; display: block; margin-bottom: 8px;"><!-- EDITABLE:calloutTitle -->Quick 3-Minute Quickstart:<!-- /EDITABLE:calloutTitle --></strong>
+        <!-- EDITABLE:calloutText -->1. Complete your workspace profile
+2. Invite your team members or collaborators
+3. Launch your first automated broadcast in under 2 minutes<!-- /EDITABLE:calloutText -->
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 8px 0;"><!-- EDITABLE:footerText -->Sent with ❤️ by {{companyName}} • Need help? Reply directly to this email.<!-- /EDITABLE:footerText --></p>
+      <p style="margin: 0;">&copy; {{year}} {{companyName}}. All rights reserved. • <a href="{{unsubscribe_url}}" style="color: #94a3b8; text-decoration: underline;">Unsubscribe</a></p>
+    </div>
+  </div>
 </body>
 </html>`
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 2. PROMOTIONAL & FLASH SALES
+  // ─────────────────────────────────────────────────────────────────────────────
   {
-    name: "Flash Sale & Special Promo",
-    subject: "⚡ 50% OFF: Exclusive 48-Hour Flash Sale for {{firstName}}",
-    previewText: "Don't miss our biggest discount of the season. Use code PING50 at checkout.",
-    category: "Promotional",
-    thumbnailColor: "#F59E0B",
-    description: "Urgent, high-energy sales announcement with countdown banner, promo code voucher, and prominent button.",
+    name: "Limited-Time Flash Sale",
+    subject: "⚡ 48-Hour Exclusive: Up to 35% OFF Everything!",
+    previewText: "Don't miss out on our biggest promotion of the season. Claim your discount now.",
+    category: "Promotions & Sales",
+    thumbnailColor: "#EA580C",
+    description: "Eye-catching promotional template designed for product discounts, coupons, and seasonal sales.",
+    defaultFields: {
+      badge: "⚡ LIMITED-TIME OFFER",
+      headline: "Unlock Up to 35% OFF Storewide",
+      greeting: "Hello {{firstName}},",
+      bodyText: "For the next 48 hours only, enjoy exclusive savings across our entire catalog! Whether you're restocking on essentials or trying out our newest products, now is the ideal time to grab what you need before items sell out.",
+      buttonText: "Claim Your Discount Now →",
+      buttonUrl: "https://example.com/sale",
+      calloutTitle: "Use Promo Code at Checkout:",
+      calloutText: "Use coupon code FLASH35 during checkout to apply 35% off your entire order. Offer expires Sunday midnight.",
+      footerText: "Terms and conditions apply. Promotion valid while supplies last."
+    },
     htmlContent: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Special Promotional Offer</title>
+  <title>Special Offer from {{companyName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #fff7ed; color: #0f172a; margin: 0; padding: 0; }
+    .email-card { max-width: 580px; margin: 30px auto; background: #ffffff; border: 1px solid #fed7aa; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 14px rgba(234,88,12,0.06); }
+    .email-header { background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 28px; text-align: center; }
+    .email-body { padding: 32px 28px; }
+    .badge { display: inline-block; background: #ffedd5; color: #c2410c; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 9999px; margin-bottom: 16px; }
+    .btn { display: inline-block; background: #ea580c; color: #ffffff !important; padding: 14px 32px; font-size: 16px; font-weight: 700; text-decoration: none; border-radius: 10px; margin: 20px 0; }
+    .coupon-box { background: #fffbeb; border: 2px dashed #f59e0b; padding: 18px 20px; border-radius: 10px; margin: 24px 0; text-align: center; }
+    .footer { border-top: 1px solid #fed7aa; padding: 24px 28px; font-size: 12px; color: #9a3412; text-align: center; }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0F172A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0F172A; padding: 30px 15px;">
-    <tr>
-      <td align="center">
-        <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
-          
-          <!-- Urgency Top Bar -->
-          <tr>
-            <td style="background-color: #DC2626; color: #FFFFFF; text-align: center; padding: 10px 20px; font-size: 12px; font-weight: 800; letter-spacing: 1.5px;">
-              ⚡ 48 HOURS ONLY • LIMITED TIME OFFER ⚡
-            </td>
-          </tr>
-
-          <!-- Brand Logo Header -->
-          <tr>
-            <td style="padding: 28px 40px 10px; text-align: center;">
-              <span style="font-size: 24px; font-weight: 900; color: #01594F;">AD</span><span style="font-size: 24px; font-weight: 800; color: #00A854;">ping</span>
-            </td>
-          </tr>
-
-          <!-- Main Promo Headline -->
-          <tr>
-            <td style="padding: 20px 40px; text-align: center;">
-              <div style="display: inline-block; background-color: #FEF3C7; color: #B45309; font-size: 13px; font-weight: 800; padding: 6px 16px; border-radius: 20px; margin-bottom: 12px;">
-                EXCLUSIVE FLASH SALE
-              </div>
-              <h1 style="margin: 0 0 12px; font-size: 38px; font-weight: 900; color: #0F172A; line-height: 1.1;">
-                Get <span style="color: #00A854;">50% OFF</span> All Plans
-              </h1>
-              <p style="margin: 0 0 24px; font-size: 16px; color: #475569; line-height: 1.5;">
-                Hey {{firstName}}, for the next 48 hours only, upgrade your marketing stack at half price. Unlimited campaigns, verified delivery, and 24/7 dedicated assistance.
-              </p>
-
-              <!-- Voucher Code Box -->
-              <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto 28px; background-color: #F0FDF4; border: 2px dashed #00A854; border-radius: 12px; padding: 16px 28px;">
-                <tr>
-                  <td style="text-align: center;">
-                    <div style="font-size: 11px; color: #166534; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">USE COUPON CODE</div>
-                    <div style="font-size: 24px; font-weight: 900; color: #01594F; letter-spacing: 3px; margin: 4px 0;">PING50</div>
-                    <div style="font-size: 11px; color: #15803D;">Applies automatically at checkout</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA Button -->
-              <div>
-                <a href="https://adping.com/pricing" style="display: inline-block; background-color: #00A854; color: #FFFFFF; font-size: 18px; font-weight: 800; text-decoration: none; padding: 16px 40px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 168, 84, 0.4);">
-                  Claim Your 50% Discount Now →
-                </a>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Value Guarantees -->
-          <tr>
-            <td style="padding: 20px 40px 30px;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-top: 1px solid #E2E8F0; padding-top: 20px; text-align: center;">
-                <tr>
-                  <td width="33%" style="font-size: 12px; color: #64748B;">
-                    <strong style="color: #0F172A; display: block; font-size: 13px;">🔒 Secure Checkout</strong>
-                    Bank-grade encryption
-                  </td>
-                  <td width="33%" style="font-size: 12px; color: #64748B;">
-                    <strong style="color: #0F172A; display: block; font-size: 13px;">⚡ Instant Activation</strong>
-                    Access features right away
-                  </td>
-                  <td width="33%" style="font-size: 12px; color: #64748B;">
-                    <strong style="color: #0F172A; display: block; font-size: 13px;">💯 30-Day Guarantee</strong>
-                    Full money-back promise
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 20px 40px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #94A3B8;">
-                Terms apply. Discount expires in 48 hours. 
-                <a href="{{unsubscribe_url}}" style="color: #64748B; text-decoration: underline;">Unsubscribe</a>.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body>
+  <div class="email-card">
+    <div class="email-header">
+      <h2 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 900;">{{companyName}}</h2>
+    </div>
+    <div class="email-body">
+      <div style="text-align: center;">
+        <span class="badge"><!-- EDITABLE:badge -->⚡ LIMITED-TIME OFFER<!-- /EDITABLE:badge --></span>
+        <h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; line-height: 1.25;"><!-- EDITABLE:headline -->Unlock Up to 35% OFF Storewide<!-- /EDITABLE:headline --></h1>
+      </div>
+      <p style="font-size: 15px; font-weight: 600; color: #334155; margin: 0 0 12px 0;"><!-- EDITABLE:greeting -->Hello {{firstName}},<!-- /EDITABLE:greeting --></p>
+      <p style="font-size: 15px; line-height: 1.65; color: #475569; margin: 0 0 20px 0;"><!-- EDITABLE:bodyText -->For the next 48 hours only, enjoy exclusive savings across our entire catalog! Whether you're restocking on essentials or trying out our newest products, now is the ideal time to grab what you need before items sell out.<!-- /EDITABLE:bodyText --></p>
+      <div class="coupon-box">
+        <strong style="color: #92400e; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;"><!-- EDITABLE:calloutTitle -->Use Promo Code at Checkout:<!-- /EDITABLE:calloutTitle --></strong>
+        <p style="margin: 0; font-size: 15px; color: #78350f; font-weight: 500;"><!-- EDITABLE:calloutText -->Use coupon code FLASH35 during checkout to apply 35% off your entire order. Offer expires Sunday midnight.<!-- /EDITABLE:calloutText --></p>
+      </div>
+      <div style="text-align: center;">
+        <a href="<!-- EDITABLE:buttonUrl -->https://example.com/sale<!-- /EDITABLE:buttonUrl -->" class="btn"><!-- EDITABLE:buttonText -->Claim Your Discount Now →<!-- /EDITABLE:buttonText --></a>
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 8px 0;"><!-- EDITABLE:footerText -->Terms and conditions apply. Promotion valid while supplies last.<!-- /EDITABLE:footerText --></p>
+      <p style="margin: 0;">&copy; {{year}} {{companyName}}. All rights reserved. • <a href="{{unsubscribe_url}}" style="color: #9a3412; text-decoration: underline;">Unsubscribe</a></p>
+    </div>
+  </div>
 </body>
 </html>`
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 3. PRODUCT ANNOUNCEMENT
+  // ─────────────────────────────────────────────────────────────────────────────
   {
-    name: "Monthly Growth Newsletter",
-    subject: "The ADping Digest: 5 Strategies to Boost In-Box Open Rates",
-    previewText: "Curated insights, platform updates, and marketing growth tips.",
-    category: "Newsletter",
-    thumbnailColor: "#3B82F6",
-    description: "An elegant editorial newsletter template with featured stories, pro tips, and reading times.",
+    name: "New Feature & Product Launch",
+    subject: "✨ Introducing our newest features designed for you",
+    previewText: "Explore the new tools we just rolled out to supercharge your workflow.",
+    category: "Product Updates",
+    thumbnailColor: "#7C3AED",
+    description: "Sleek product release template to showcase newly added capabilities, improvements, and roadmap highlights.",
+    defaultFields: {
+      badge: "🚀 WHAT'S NEW",
+      headline: "Meet the all-new experience built for speed",
+      greeting: "Hey {{firstName}},",
+      bodyText: "We have been listening closely to your feedback! Over the past few weeks, our engineering team has been building powerful new enhancements to streamline your daily workflow, save you hours of manual work, and deliver deeper insights.",
+      buttonText: "Explore New Features →",
+      buttonUrl: "https://example.com/releases",
+      calloutTitle: "Key Highlights Included:",
+      calloutText: "• 3x faster performance and real-time synchronization\n• Intuitive drag-and-drop campaign canvas\n• Smarter audience segmentation with custom behavioral tags\n• Comprehensive audit logs and activity tracking",
+      footerText: "Got questions or feedback? Our product team would love to hear from you."
+    },
     htmlContent: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monthly Growth Newsletter</title>
+  <title>Product Announcement from {{companyName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #faf5ff; color: #0f172a; margin: 0; padding: 0; }
+    .email-card { max-width: 580px; margin: 30px auto; background: #ffffff; border: 1px solid #e9d5ff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 14px rgba(124,58,237,0.05); }
+    .email-header { background: #7c3aed; padding: 32px 28px; text-align: left; }
+    .email-body { padding: 32px 28px; }
+    .badge { display: inline-block; background: #f3e8ff; color: #6b21a8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 9999px; margin-bottom: 16px; }
+    .btn { display: inline-block; background: #7c3aed; color: #ffffff !important; padding: 14px 28px; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 10px; margin: 20px 0; }
+    .callout { background: #faf5ff; border: 1px solid #e9d5ff; padding: 18px 20px; border-radius: 10px; margin: 24px 0; font-size: 14px; line-height: 1.65; color: #4c1d95; white-space: pre-line; }
+    .footer { border-top: 1px solid #f3e8ff; padding: 24px 28px; font-size: 12px; color: #9333ea; text-align: center; }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #F1F5F9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F1F5F9; padding: 30px 15px;">
-    <tr>
-      <td align="center">
-        <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 14px; overflow: hidden; border: 1px solid #E2E8F0;">
-          
-          <!-- Header -->
-          <tr>
-            <td style="padding: 28px 40px; background-color: #01594F; color: #FFFFFF;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td>
-                    <span style="font-size: 22px; font-weight: 900; color: #FFFFFF;">AD</span><span style="font-size: 22px; font-weight: 800; color: #00C853;">ping</span>
-                    <span style="font-size: 12px; color: #A7F3D0; margin-left: 8px;">DIGEST</span>
-                  </td>
-                  <td align="right" style="font-size: 12px; color: #CBD5E1;">
-                    ISSUE #12 • MONTHLY
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Featured Article -->
-          <tr>
-            <td style="padding: 32px 40px 20px;">
-              <div style="font-size: 11px; font-weight: 800; color: #00A854; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
-                FEATURED STORY • 4 MIN READ
-              </div>
-              <h2 style="margin: 0 0 14px; font-size: 24px; font-weight: 800; color: #0F172A; line-height: 1.3;">
-                How Modern Brands Achieve a 42% Open Rate on Marketing Broadcasts
-              </h2>
-              <p style="margin: 0 0 16px; font-size: 15px; color: #475569; line-height: 1.6;">
-                Hi {{firstName}}, deliverability is no longer just about avoiding spam filters — it's about domain authentication (DKIM, SPF), intelligent preheaders, and sending content that sparks real engagement.
-              </p>
-              <a href="https://adping.com/blog/open-rate-guide" style="font-size: 14px; font-weight: 700; color: #00A854; text-decoration: none;">
-                Read Full Article →
-              </a>
-            </td>
-          </tr>
-
-          <!-- Divider -->
-          <tr>
-            <td style="padding: 0 40px;">
-              <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 0;">
-            </td>
-          </tr>
-
-          <!-- Pro Tip Callout -->
-          <tr>
-            <td style="padding: 24px 40px;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F0FDF4; border-left: 4px solid #00A854; border-radius: 0 8px 8px 0; padding: 16px;">
-                <tr>
-                  <td>
-                    <strong style="color: #166534; font-size: 13px; display: block; margin-bottom: 4px;">💡 Pro Tip of the Month</strong>
-                    <span style="color: #334155; font-size: 13px; line-height: 1.5;">
-                      Personalizing your subject line with <code>{{firstName}}</code> boosts open rates by up to 26% compared to generic subject lines.
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Secondary Grid -->
-          <tr>
-            <td style="padding: 0 40px 30px;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td width="48%" style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; vertical-align: top;">
-                    <div style="font-size: 11px; color: #64748B; font-weight: 700;">PRODUCT UPDATE</div>
-                    <h4 style="margin: 6px 0 8px; font-size: 15px; color: #0F172A;">Brevo-Style Email Engine</h4>
-                    <p style="margin: 0; font-size: 12px; color: #64748B; line-height: 1.4;">
-                      Create responsive email campaigns decoupled from WhatsApp numbers.
-                    </p>
-                  </td>
-                  <td width="4%"></td>
-                  <td width="48%" style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; vertical-align: top;">
-                    <div style="font-size: 11px; color: #64748B; font-weight: 700;">CASE STUDY</div>
-                    <h4 style="margin: 6px 0 8px; font-size: 15px; color: #0F172A;">Scaling to 1M Messages</h4>
-                    <p style="margin: 0; font-size: 12px; color: #64748B; line-height: 1.4;">
-                      See how ecommerce brands automate notifications without downtime.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 24px 40px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0 0 6px; font-size: 12px; color: #64748B;">
-                Delivered by <strong>ADping</strong>. Reach. Engage. Convert.
-              </p>
-              <p style="margin: 0; font-size: 11px; color: #94A3B8;">
-                <a href="{{unsubscribe_url}}" style="color: #64748B; text-decoration: underline;">Unsubscribe</a> from this newsletter.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body>
+  <div class="email-card">
+    <div class="email-header">
+      <h2 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">{{companyName}}</h2>
+    </div>
+    <div class="email-body">
+      <span class="badge"><!-- EDITABLE:badge -->🚀 WHAT'S NEW<!-- /EDITABLE:badge --></span>
+      <h1 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; line-height: 1.3;"><!-- EDITABLE:headline -->Meet the all-new experience built for speed<!-- /EDITABLE:headline --></h1>
+      <p style="font-size: 15px; font-weight: 600; color: #334155; margin: 0 0 12px 0;"><!-- EDITABLE:greeting -->Hey {{firstName}},<!-- /EDITABLE:greeting --></p>
+      <p style="font-size: 15px; line-height: 1.65; color: #475569; margin: 0 0 20px 0;"><!-- EDITABLE:bodyText -->We have been listening closely to your feedback! Over the past few weeks, our engineering team has been building powerful new enhancements to streamline your daily workflow, save you hours of manual work, and deliver deeper insights.<!-- /EDITABLE:bodyText --></p>
+      <div class="callout">
+        <strong style="display: block; margin-bottom: 8px; font-size: 14px; color: #581c87;"><!-- EDITABLE:calloutTitle -->Key Highlights Included:<!-- /EDITABLE:calloutTitle --></strong>
+        <!-- EDITABLE:calloutText -->• 3x faster performance and real-time synchronization
+• Intuitive drag-and-drop campaign canvas
+• Smarter audience segmentation with custom behavioral tags
+• Comprehensive audit logs and activity tracking<!-- /EDITABLE:calloutText -->
+      </div>
+      <div style="text-align: center;">
+        <a href="<!-- EDITABLE:buttonUrl -->https://example.com/releases<!-- /EDITABLE:buttonUrl -->" class="btn"><!-- EDITABLE:buttonText -->Explore New Features →<!-- /EDITABLE:buttonText --></a>
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 8px 0;"><!-- EDITABLE:footerText -->Got questions or feedback? Our product team would love to hear from you.<!-- /EDITABLE:footerText --></p>
+      <p style="margin: 0;">&copy; {{year}} {{companyName}}. All rights reserved. • <a href="{{unsubscribe_url}}" style="color: #9333ea; text-decoration: underline;">Unsubscribe</a></p>
+    </div>
+  </div>
 </body>
 </html>`
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 4. WEEKLY NEWSLETTER & CURATED DIGEST
+  // ─────────────────────────────────────────────────────────────────────────────
   {
-    name: "New Feature Announcement",
-    subject: "🚀 Introducing New Marketing Capabilities in ADping",
-    previewText: "Explore our upgraded suite designed to convert more customers.",
-    category: "Product",
-    thumbnailColor: "#8B5CF6",
-    description: "Sleek modern update announcement with feature highlight cards and preview badges.",
+    name: "Weekly Newsletter & Digest",
+    subject: "📬 The Weekly Brief: Insights, Strategies & Trends",
+    previewText: "Your handpicked curation of stories, industry breakdowns, and practical tips.",
+    category: "Newsletters",
+    thumbnailColor: "#059669",
+    description: "Editorial newsletter template optimized for readability, featured insights, and engaging content roundups.",
+    defaultFields: {
+      badge: "📰 WEEKLY DIGEST",
+      headline: "The Latest Trends & Tactical Insights",
+      greeting: "Dear {{firstName}},",
+      bodyText: "Welcome to this week's edition of The Weekly Brief! Every week, we break down actionable tactics, industry updates, and case studies to help you execute better and scale your business without the guesswork.",
+      buttonText: "Read the Full Edition Online →",
+      buttonUrl: "https://example.com/newsletter",
+      calloutTitle: "This Week's Top 3 Highlights:",
+      calloutText: "1. How modern brands are driving 40%+ open rates with WhatsApp & Email synergy\n2. 5 critical mistakes killing your transactional email deliverability\n3. Creator spotlight: Scaling from 0 to 100K subscribers in 90 days",
+      footerText: "You are receiving this because you subscribed to updates from {{companyName}}."
+    },
     htmlContent: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Announcement</title>
+  <title>Newsletter from {{companyName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0fdf4; color: #0f172a; margin: 0; padding: 0; }
+    .email-card { max-width: 580px; margin: 30px auto; background: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 14px rgba(5,150,105,0.05); }
+    .email-header { background: #059669; padding: 32px 28px; text-align: left; }
+    .email-body { padding: 32px 28px; }
+    .badge { display: inline-block; background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 9999px; margin-bottom: 16px; }
+    .btn { display: inline-block; background: #059669; color: #ffffff !important; padding: 14px 28px; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 10px; margin: 20px 0; }
+    .callout { background: #f0fdf4; border-left: 4px solid #059669; padding: 18px 20px; border-radius: 8px; margin: 24px 0; font-size: 14px; line-height: 1.65; color: #166534; white-space: pre-line; }
+    .footer { border-top: 1px solid #dcfce7; padding: 24px 28px; font-size: 12px; color: #15803d; text-align: center; }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 30px 15px;">
-    <tr>
-      <td align="center">
-        <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
-          
-          <!-- Top Accent -->
-          <tr>
-            <td style="height: 6px; background: linear-gradient(90deg, #01594F, #00A854, #8B5CF6);"></td>
-          </tr>
-
-          <!-- Header -->
-          <tr>
-            <td style="padding: 32px 40px 16px; text-align: center;">
-              <div style="font-size: 24px; font-weight: 900; color: #01594F;">AD<span style="color: #00A854;">ping</span></div>
-              <div style="margin-top: 16px; display: inline-block; background-color: #EDE9FE; color: #6D28D9; font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 20px; letter-spacing: 1px;">
-                NEW RELEASE
-              </div>
-              <h1 style="margin: 12px 0 10px; font-size: 28px; font-weight: 800; color: #0F172A; line-height: 1.2;">
-                Say Hello to Independent Email Campaigns
-              </h1>
-              <p style="margin: 0; font-size: 15px; color: #475569; line-height: 1.6;">
-                Hi {{firstName}}, we've completely rebuilt the email engine from the ground up. You can now compose, schedule, and track professional email broadcasts just like in Brevo.
-              </p>
-            </td>
-          </tr>
-
-          <!-- 3 Feature Cards -->
-          <tr>
-            <td style="padding: 16px 40px 24px;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td style="padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; margin-bottom: 8px;">
-                    <strong style="color: #0F172A; font-size: 14px; display: block;">📬 No WhatsApp Required</strong>
-                    <span style="color: #64748B; font-size: 13px;">Send dedicated email campaigns to any subscriber without linking a phone number.</span>
-                  </td>
-                </tr>
-                <tr><td style="height: 10px;"></td></tr>
-                <tr>
-                  <td style="padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; margin-bottom: 8px;">
-                    <strong style="color: #0F172A; font-size: 14px; display: block;">🎯 Send to Specific Contacts or Direct Emails</strong>
-                    <span style="color: #64748B; font-size: 13px;">Pick individual users, paste raw email addresses, or broadcast to contact segments.</span>
-                  </td>
-                </tr>
-                <tr><td style="height: 10px;"></td></tr>
-                <tr>
-                  <td style="padding: 12px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
-                    <strong style="color: #0F172A; font-size: 14px; display: block;">📊 Real-Time Deliverability KPIs</strong>
-                    <span style="color: #64748B; font-size: 13px;">Monitor open rates, click rates, delivery reliability, and inbox test rendering.</span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- CTA -->
-          <tr>
-            <td style="padding: 0 40px 36px; text-align: center;">
-              <a href="https://adping.com/email-campaigns/new" style="display: inline-block; background-color: #00A854; color: #FFFFFF; font-size: 16px; font-weight: 700; text-decoration: none; padding: 14px 34px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0, 168, 84, 0.35);">
-                Try New Email Campaigns →
-              </a>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 20px 40px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #94A3B8;">
-                ADping Platform Updates • <a href="{{unsubscribe_url}}" style="color: #64748B;">Unsubscribe</a>.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body>
+  <div class="email-card">
+    <div class="email-header">
+      <h2 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">{{companyName}}</h2>
+    </div>
+    <div class="email-body">
+      <span class="badge"><!-- EDITABLE:badge -->📰 WEEKLY DIGEST<!-- /EDITABLE:badge --></span>
+      <h1 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; line-height: 1.3;"><!-- EDITABLE:headline -->The Latest Trends & Tactical Insights<!-- /EDITABLE:headline --></h1>
+      <p style="font-size: 15px; font-weight: 600; color: #334155; margin: 0 0 12px 0;"><!-- EDITABLE:greeting -->Dear {{firstName}},<!-- /EDITABLE:greeting --></p>
+      <p style="font-size: 15px; line-height: 1.65; color: #475569; margin: 0 0 20px 0;"><!-- EDITABLE:bodyText -->Welcome to this week's edition of The Weekly Brief! Every week, we break down actionable tactics, industry updates, and case studies to help you execute better and scale your business without the guesswork.<!-- /EDITABLE:bodyText --></p>
+      <div class="callout">
+        <strong style="color: #14532d; display: block; margin-bottom: 8px;"><!-- EDITABLE:calloutTitle -->This Week's Top 3 Highlights:<!-- /EDITABLE:calloutTitle --></strong>
+        <!-- EDITABLE:calloutText -->1. How modern brands are driving 40%+ open rates with WhatsApp & Email synergy
+2. 5 critical mistakes killing your transactional email deliverability
+3. Creator spotlight: Scaling from 0 to 100K subscribers in 90 days<!-- /EDITABLE:calloutText -->
+      </div>
+      <div style="text-align: center;">
+        <a href="<!-- EDITABLE:buttonUrl -->https://example.com/newsletter<!-- /EDITABLE:buttonUrl -->" class="btn"><!-- EDITABLE:buttonText -->Read the Full Edition Online →<!-- /EDITABLE:buttonText --></a>
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 8px 0;"><!-- EDITABLE:footerText -->You are receiving this because you subscribed to updates from {{companyName}}.<!-- /EDITABLE:footerText --></p>
+      <p style="margin: 0;">&copy; {{year}} {{companyName}}. All rights reserved. • <a href="{{unsubscribe_url}}" style="color: #15803d; text-decoration: underline;">Unsubscribe</a></p>
+    </div>
+  </div>
 </body>
 </html>`
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 5. EVENT & WEBINAR INVITATION
+  // ─────────────────────────────────────────────────────────────────────────────
   {
-    name: "Webinar & Event Invitation",
-    subject: "📅 You're Invited: Live Growth Masterclass with ADping",
-    previewText: "Save your seat for our exclusive live session on customer retention.",
-    category: "Events",
-    thumbnailColor: "#0D9488",
-    description: "Event registration email with date callout, speaker highlights, bulleted agenda, and seat reservation button.",
+    name: "Live Webinar & Event Invitation",
+    subject: "🎙️ You're Invited: Live Masterclass on Growth & Automation",
+    previewText: "Reserve your seat for this live deep-dive session with industry leaders.",
+    category: "Events & Webinars",
+    thumbnailColor: "#0284C7",
+    description: "Professional invitation template featuring event date, speaker spotlight, key takeaways, and reservation button.",
+    defaultFields: {
+      badge: "🎙️ LIVE MASTERCLASS",
+      headline: "How to Build Omnichannel Automation in 2025",
+      greeting: "Hi {{firstName}},",
+      bodyText: "Join us for an exclusive, highly interactive live session where our growth experts share real-world frameworks for connecting WhatsApp campaigns and email sequences into conversion-driving automated funnels.",
+      buttonText: "Reserve My Free Seat →",
+      buttonUrl: "https://example.com/webinar",
+      calloutTitle: "Event Details & Logistics:",
+      calloutText: "📅 Date: Thursday, Next Week\n⏰ Time: 2:00 PM EST / 7:00 PM GMT\n📍 Location: Live Video Broadcast (Link sent upon RSVP)\n🎁 Bonus: All live attendees receive our free Omnichannel Playbook template pack.",
+      footerText: "Can't make it live? Register anyway and we'll send you the on-demand recording."
+    },
     htmlContent: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Event Invitation</title>
+  <title>Event Invitation from {{companyName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f9ff; color: #0f172a; margin: 0; padding: 0; }
+    .email-card { max-width: 580px; margin: 30px auto; background: #ffffff; border: 1px solid #bae6fd; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 14px rgba(2,132,199,0.06); }
+    .email-header { background: #0284c7; padding: 32px 28px; text-align: left; }
+    .email-body { padding: 32px 28px; }
+    .badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 9999px; margin-bottom: 16px; }
+    .btn { display: inline-block; background: #0284c7; color: #ffffff !important; padding: 14px 28px; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 10px; margin: 20px 0; }
+    .callout { background: #f0f9ff; border-left: 4px solid #0284c7; padding: 18px 20px; border-radius: 8px; margin: 24px 0; font-size: 14px; line-height: 1.65; color: #075985; white-space: pre-line; }
+    .footer { border-top: 1px solid #e0f2fe; padding: 24px 28px; font-size: 12px; color: #0284c7; text-align: center; }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 30px 15px;">
-    <tr>
-      <td align="center">
-        <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid #E2E8F0;">
-          
-          <!-- Date Badge Bar -->
-          <tr>
-            <td style="background-color: #01594F; color: #A7F3D0; text-align: center; padding: 12px 20px; font-size: 13px; font-weight: 800; letter-spacing: 1px;">
-              🔴 LIVE MASTERCLASS • THURSDAY, OCTOBER 15 • 2:00 PM EST
-            </td>
-          </tr>
-
-          <!-- Main Content -->
-          <tr>
-            <td style="padding: 36px 40px 24px;">
-              <div style="font-size: 22px; font-weight: 900; color: #01594F; margin-bottom: 12px;">AD<span style="color: #00A854;">ping</span> Workshop</div>
-              <h1 style="margin: 0 0 16px; font-size: 26px; font-weight: 800; color: #0F172A; line-height: 1.3;">
-                How to 10x Customer Retention with WhatsApp & Email Workflows
-              </h1>
-              <p style="margin: 0 0 20px; font-size: 15px; color: #475569; line-height: 1.6;">
-                Hi {{firstName}}, join our senior marketing engineers for a live, interactive 45-minute workshop demonstrating how to build high-converting automated funnels that engage customers on both WhatsApp and email simultaneously.
-              </p>
-
-              <!-- Agenda Box -->
-              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F0FDF4; border-radius: 12px; padding: 18px; margin-bottom: 24px;">
-                <tr>
-                  <td>
-                    <strong style="color: #166534; font-size: 14px; display: block; margin-bottom: 10px;">What You'll Learn:</strong>
-                    <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 13px; line-height: 1.8;">
-                      <li>The anatomy of a 60%+ open rate onboarding sequence</li>
-                      <li>How to recover abandoned carts using multi-touch triggers</li>
-                      <li>Setting up DKIM & SPF for pristine deliverability</li>
-                      <li>Live Q&A session with our deliverability experts</li>
-                    </ul>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Registration Button -->
-              <div style="text-align: center;">
-                <a href="https://adping.com/events/webinar" style="display: inline-block; background-color: #00A854; color: #FFFFFF; font-size: 16px; font-weight: 700; text-decoration: none; padding: 14px 36px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0, 168, 84, 0.35);">
-                  Reserve Your Free Seat Now →
-                </a>
-                <div style="margin-top: 10px; font-size: 12px; color: #94A3B8;">Free registration • Recording sent to all registrants</div>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 20px 40px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #94A3B8;">
-                <a href="{{unsubscribe_url}}" style="color: #64748B;">Unsubscribe</a> from event alerts.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body>
+  <div class="email-card">
+    <div class="email-header">
+      <h2 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">{{companyName}}</h2>
+    </div>
+    <div class="email-body">
+      <span class="badge"><!-- EDITABLE:badge -->🎙️ LIVE MASTERCLASS<!-- /EDITABLE:badge --></span>
+      <h1 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; line-height: 1.3;"><!-- EDITABLE:headline -->How to Build Omnichannel Automation in 2025<!-- /EDITABLE:headline --></h1>
+      <p style="font-size: 15px; font-weight: 600; color: #334155; margin: 0 0 12px 0;"><!-- EDITABLE:greeting -->Hi {{firstName}},<!-- /EDITABLE:greeting --></p>
+      <p style="font-size: 15px; line-height: 1.65; color: #475569; margin: 0 0 20px 0;"><!-- EDITABLE:bodyText -->Join us for an exclusive, highly interactive live session where our growth experts share real-world frameworks for connecting WhatsApp campaigns and email sequences into conversion-driving automated funnels.<!-- /EDITABLE:bodyText --></p>
+      <div class="callout">
+        <strong style="color: #0c4a6e; display: block; margin-bottom: 8px;"><!-- EDITABLE:calloutTitle -->Event Details & Logistics:<!-- /EDITABLE:calloutTitle --></strong>
+        <!-- EDITABLE:calloutText -->📅 Date: Thursday, Next Week
+⏰ Time: 2:00 PM EST / 7:00 PM GMT
+📍 Location: Live Video Broadcast (Link sent upon RSVP)
+🎁 Bonus: All live attendees receive our free Omnichannel Playbook template pack.<!-- /EDITABLE:calloutText -->
+      </div>
+      <div style="text-align: center;">
+        <a href="<!-- EDITABLE:buttonUrl -->https://example.com/webinar<!-- /EDITABLE:buttonUrl -->" class="btn"><!-- EDITABLE:buttonText -->Reserve My Free Seat →<!-- /EDITABLE:buttonText --></a>
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 8px 0;"><!-- EDITABLE:footerText -->Can't make it live? Register anyway and we'll send you the on-demand recording.<!-- /EDITABLE:footerText --></p>
+      <p style="margin: 0;">&copy; {{year}} {{companyName}}. All rights reserved. • <a href="{{unsubscribe_url}}" style="color: #0284c7; text-decoration: underline;">Unsubscribe</a></p>
+    </div>
+  </div>
 </body>
 </html>`
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 6. TRANSACTIONAL & SECURITY ALERT
+  // ─────────────────────────────────────────────────────────────────────────────
   {
-    name: "Order Receipt & Confirmation",
-    subject: "Receipt for Order #{{orderId}} from ADping",
-    previewText: "Thank you for your order. Here is your receipt and details.",
-    category: "Transactional",
-    thumbnailColor: "#10B981",
-    description: "Clean, itemized transactional confirmation with order breakdown, totals, and support links.",
+    name: "Security Notice & Account Alert",
+    subject: "🛡️ Important Security Notice Regarding Your Account",
+    previewText: "Please review recent account activity or confirm your identity.",
+    category: "Transactional & Security",
+    thumbnailColor: "#DC2626",
+    description: "Critical transactional template for password resets, sign-in alerts, verification OTPs, and security notices.",
+    defaultFields: {
+      badge: "🛡️ SECURITY NOTIFICATION",
+      headline: "Notice Regarding Recent Account Activity",
+      greeting: "Hello {{firstName}},",
+      bodyText: "We recently detected a security-relevant event or sign-in request on your account. If this was authorized by you, no further action is required. If you did not initiate this request, we strongly recommend reviewing your session history and securing your password immediately.",
+      buttonText: "Review Account Security →",
+      buttonUrl: "https://example.com/security",
+      calloutTitle: "Security Check Details:",
+      calloutText: "• Status: Awaiting User Review\n• IP Address: {{ipAddress}}\n• Timestamp: {{timestamp}}\n• Device: {{deviceType}}\n• Action Required: Confirm legitimacy or reset credentials",
+      footerText: "If you need immediate assistance, please contact our support desk."
+    },
     htmlContent: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Confirmation</title>
+  <title>Security Alert from {{companyName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #fef2f2; color: #0f172a; margin: 0; padding: 0; }
+    .email-card { max-width: 580px; margin: 30px auto; background: #ffffff; border: 1px solid #fecaca; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 14px rgba(220,38,38,0.06); }
+    .email-header { background: #dc2626; padding: 32px 28px; text-align: left; }
+    .email-body { padding: 32px 28px; }
+    .badge { display: inline-block; background: #fee2e2; color: #991b1b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 9999px; margin-bottom: 16px; }
+    .btn { display: inline-block; background: #dc2626; color: #ffffff !important; padding: 14px 28px; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 10px; margin: 20px 0; }
+    .callout { background: #fef2f2; border: 1px solid #fecaca; padding: 18px 20px; border-radius: 8px; margin: 24px 0; font-size: 14px; line-height: 1.65; color: #7f1d1d; white-space: pre-line; }
+    .footer { border-top: 1px solid #fee2e2; padding: 24px 28px; font-size: 12px; color: #b91c1c; text-align: center; }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 30px 15px;">
-    <tr>
-      <td align="center">
-        <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid #E2E8F0;">
-          
-          <!-- Header -->
-          <tr>
-            <td style="padding: 30px 40px 20px; border-bottom: 1px solid #E2E8F0;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td>
-                    <span style="font-size: 24px; font-weight: 900; color: #01594F;">AD</span><span style="font-size: 24px; font-weight: 800; color: #00A854;">ping</span>
-                  </td>
-                  <td align="right">
-                    <span style="display: inline-block; background-color: #DCFCE7; color: #166534; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px;">
-                      PAID ✓
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Confirmation Body -->
-          <tr>
-            <td style="padding: 30px 40px 20px;">
-              <h1 style="margin: 0 0 10px; font-size: 22px; font-weight: 800; color: #0F172A;">Thank you for your order, {{firstName}}!</h1>
-              <p style="margin: 0 0 20px; font-size: 14px; color: #475569; line-height: 1.5;">
-                We've received your payment and your service is active. Below is a copy of your receipt for your records.
-              </p>
-
-              <!-- Order Summary Table -->
-              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden; margin-bottom: 24px;">
-                <tr style="background-color: #F8FAFC; font-size: 12px; color: #64748B; font-weight: 700;">
-                  <th align="left" style="padding: 10px 14px; border-bottom: 1px solid #E2E8F0;">DESCRIPTION</th>
-                  <th align="center" style="padding: 10px 14px; border-bottom: 1px solid #E2E8F0;">QTY</th>
-                  <th align="right" style="padding: 10px 14px; border-bottom: 1px solid #E2E8F0;">AMOUNT</th>
-                </tr>
-                <tr style="font-size: 14px; color: #0F172A;">
-                  <td style="padding: 12px 14px; border-bottom: 1px solid #E2E8F0;">
-                    <strong>ADping Business Growth Plan</strong><br>
-                    <span style="font-size: 12px; color: #64748B;">Monthly Subscription</span>
-                  </td>
-                  <td align="center" style="padding: 12px 14px; border-bottom: 1px solid #E2E8F0;">1</td>
-                  <td align="right" style="padding: 12px 14px; border-bottom: 1px solid #E2E8F0;">$49.00</td>
-                </tr>
-                <tr style="font-size: 14px; font-weight: 800; background-color: #F8FAFC;">
-                  <td colspan="2" style="padding: 12px 14px; text-align: right; color: #334155;">Total Paid:</td>
-                  <td style="padding: 12px 14px; text-align: right; color: #00A854; font-size: 16px;">$49.00</td>
-                </tr>
-              </table>
-
-              <!-- Button -->
-              <div style="text-align: center; margin-bottom: 10px;">
-                <a href="https://adping.com/billing" style="display: inline-block; background-color: #00A854; color: #FFFFFF; font-size: 15px; font-weight: 700; text-decoration: none; padding: 12px 30px; border-radius: 8px;">
-                  View Invoice in Dashboard →
-                </a>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 20px 40px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #94A3B8;">
-                Need assistance? Contact <a href="mailto:support@adping.com" style="color: #64748B;">support@adping.com</a> • <a href="{{unsubscribe_url}}" style="color: #64748B;">Unsubscribe</a>
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body>
+  <div class="email-card">
+    <div class="email-header">
+      <h2 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">{{companyName}}</h2>
+    </div>
+    <div class="email-body">
+      <span class="badge"><!-- EDITABLE:badge -->🛡️ SECURITY NOTIFICATION<!-- /EDITABLE:badge --></span>
+      <h1 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; line-height: 1.3;"><!-- EDITABLE:headline -->Notice Regarding Recent Account Activity<!-- /EDITABLE:headline --></h1>
+      <p style="font-size: 15px; font-weight: 600; color: #334155; margin: 0 0 12px 0;"><!-- EDITABLE:greeting -->Hello {{firstName}},<!-- /EDITABLE:greeting --></p>
+      <p style="font-size: 15px; line-height: 1.65; color: #475569; margin: 0 0 20px 0;"><!-- EDITABLE:bodyText -->We recently detected a security-relevant event or sign-in request on your account. If this was authorized by you, no further action is required. If you did not initiate this request, we strongly recommend reviewing your session history and securing your password immediately.<!-- /EDITABLE:bodyText --></p>
+      <div class="callout">
+        <strong style="color: #7f1d1d; display: block; margin-bottom: 8px;"><!-- EDITABLE:calloutTitle -->Security Check Details:<!-- /EDITABLE:calloutTitle --></strong>
+        <!-- EDITABLE:calloutText -->• Status: Awaiting User Review
+• IP Address: {{ipAddress}}
+• Timestamp: {{timestamp}}
+• Device: {{deviceType}}
+• Action Required: Confirm legitimacy or reset credentials<!-- /EDITABLE:calloutText -->
+      </div>
+      <div style="text-align: center;">
+        <a href="<!-- EDITABLE:buttonUrl -->https://example.com/security<!-- /EDITABLE:buttonUrl -->" class="btn"><!-- EDITABLE:buttonText -->Review Account Security →<!-- /EDITABLE:buttonText --></a>
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 8px 0;"><!-- EDITABLE:footerText -->If you need immediate assistance, please contact our support desk.<!-- /EDITABLE:footerText --></p>
+      <p style="margin: 0;">&copy; {{year}} {{companyName}}. All rights reserved. • <a href="{{unsubscribe_url}}" style="color: #b91c1c; text-decoration: underline;">Unsubscribe</a></p>
+    </div>
+  </div>
 </body>
 </html>`
   }

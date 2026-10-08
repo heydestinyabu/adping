@@ -4,14 +4,14 @@ import { EmailSenderController } from "../controllers/email-sender.controller";
 import { EmailTemplateController } from "../controllers/email-template.controller";
 import { EmailCampaignController } from "../controllers/email-campaign.controller";
 import { EmailDomainController } from "../controllers/email-domain.controller";
-import { requireAuth, requireSuperadmin } from "../middlewares/auth.middleware";
+import { requireAuth, requireSuperadmin, requireRole } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// --- Provider Configs (Superadmin Only) ---
-router.get("/providers", requireAuth, requireSuperadmin, EmailProviderController.list);
-router.post("/providers", requireAuth, requireSuperadmin, EmailProviderController.save);
-router.post("/providers/verify", requireAuth, requireSuperadmin, EmailProviderController.verify);
+// --- Provider Configs (Superadmin & Admin) ---
+router.get("/providers", requireAuth, requireRole("superadmin", "admin"), EmailProviderController.list);
+router.post("/providers", requireAuth, requireRole("superadmin", "admin"), EmailProviderController.save);
+router.post("/providers/verify", requireAuth, requireRole("superadmin", "admin"), EmailProviderController.verify);
 router.get("/providers/active", requireAuth, EmailProviderController.getActive);
 
 // --- Domain Management (Tenant admins manage their domains via platform's provider) ---
@@ -38,6 +38,7 @@ router.delete("/templates/:id", requireAuth, EmailTemplateController.delete);
 // --- Campaigns ---
 router.get("/audience-estimate", requireAuth, EmailCampaignController.getAudienceEstimate);
 router.get("/contacts-search", requireAuth, EmailCampaignController.searchContactsWithEmail);
+router.post("/update-contact-email", requireAuth, EmailCampaignController.updateContactEmail);
 router.get("/campaigns", requireAuth, EmailCampaignController.list);
 router.get("/campaigns/stats", requireAuth, EmailCampaignController.getStats);
 router.post("/campaigns", requireAuth, EmailCampaignController.create);

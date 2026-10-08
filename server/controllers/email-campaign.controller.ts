@@ -1,10 +1,34 @@
 import type { Request, Response } from "express";
 import { db } from "../db";
 import { campaigns, emailCampaignMeta, campaignRecipients, emailEvents, emailSenders } from "@shared/schema";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { eq, and, or, desc, sql, inArray } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 import { EmailCampaignService } from "../services/email-campaign.service";
+import { storage } from "../storage";
+
+async function getTenantScopedContactsCondition(user: any) {
+  if (!user) {
+    return sql`1=0`;
+  }
+  if (user.role === "superadmin") {
+    return undefined;
+  }
+  const ownerId = user.role === "team" ? user.createdBy : user.id;
+  let channelIds: string[] = [];
+  try {
+    const userChannels = await storage.getChannelsByUserId(ownerId);
+    channelIds = (userChannels || []).map((ch: any) => ch.id);
+  } catch {
+    channelIds = [];
+  }
+
+  const { contacts } = await import("@shared/schema");
+  if (channelIds.length > 0) {
+    return or(eq(contacts.createdBy, ownerId), inArray(contacts.channelId, channelIds));
+  }
+  return eq(contacts.createdBy, ownerId);
+}
 
 export class EmailCampaignController {
   static async create(req: Request, res: Response) {
@@ -78,6 +102,7 @@ export class EmailCampaignController {
           campaignType: "email",
           type: "marketing",
           apiType: "email_api",
+          platform: "email",
           status: scheduledAt ? "scheduled" : "draft",
           scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
           audienceType: audienceType || "all",
@@ -117,41 +142,25 @@ export class EmailCampaignController {
             name: string;
           }
           let resolvedRecipients: RecipientItem[] = [];
+          const tenantCondition = await getTenantScopedContactsCondition(req.user);
 
-          // Case 1: Specific Contacts / Certain User(s)
+          // Case 1: Specific Contacts
           const rawTargetIds = audienceParams?.contactIds || (audienceParams?.contactId ? [audienceParams.contactId] : []);
           if ((audienceType === "specific" || audienceType === "users" || audienceType === "contacts_list") && rawTargetIds.length > 0) {
-            const userIds: string[] = [];
             const contactIdsList: string[] = [];
 
             for (const id of rawTargetIds) {
-              if (typeof id === "string" && id.startsWith("user_")) {
-                userIds.push(id.replace(/^user_/, ""));
-              } else if (typeof id === "string" && id.startsWith("contact_")) {
+              if (typeof id === "string" && id.startsWith("contact_")) {
                 contactIdsList.push(id.replace(/^contact_/, ""));
-              } else {
-                userIds.push(id);
+              } else if (typeof id === "string" && !id.startsWith("user_")) {
                 contactIdsList.push(id);
               }
             }
 
-            if (userIds.length > 0) {
-              const { users } = await import("@shared/schema");
-              const userRows = await db.select().from(users).where(inArray(users.id, userIds));
-              for (const u of userRows) {
-                if (u.email && u.email.trim() && u.email.includes("@")) {
-                  const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
-                  resolvedRecipients.push({
-                    contactId: null,
-                    email: u.email.trim(),
-                    name: fullName
-                  });
-                }
-              }
-            }
-
             if (contactIdsList.length > 0) {
-              const selected = await db.select().from(contacts).where(inArray(contacts.id, contactIdsList));
+              const baseCondition = inArray(contacts.id, contactIdsList);
+              const whereCondition = tenantCondition ? and(baseCondition, tenantCondition) : baseCondition;
+              const selected = await db.select().from(contacts).where(whereCondition);
               for (const c of selected) {
                 if (c.email && c.email.trim() && c.email.includes("@")) {
                   resolvedRecipients.push({
@@ -193,7 +202,10 @@ export class EmailCampaignController {
               const targetNames = Array.from(new Set([...groupNames, ...rawGroupIds]));
 
               if (targetNames.length > 0) {
-                const allContacts = await db.select().from(contacts);
+                const scopedContactsQuery = tenantCondition
+                  ? db.select().from(contacts).where(tenantCondition)
+                  : db.select().from(contacts);
+                const allContacts = await scopedContactsQuery;
                 const matched = allContacts.filter(c => {
                   const cGroups: string[] = (c.groups as any) || [];
                   return targetNames.some(name => cGroups.includes(name) || name === c.id);
@@ -210,28 +222,18 @@ export class EmailCampaignController {
               }
             }
           }
-          // Case 4: All Contacts & Registered Users with email
+          // Case 4: All Contacts with email
           else {
-            const { users } = await import("@shared/schema");
-            const allContacts = await db.select().from(contacts);
+            const scopedContactsQuery = tenantCondition
+              ? db.select().from(contacts).where(tenantCondition)
+              : db.select().from(contacts);
+            const allContacts = await scopedContactsQuery;
             for (const c of allContacts) {
               if (c.email && c.email.trim() && c.email.includes("@")) {
                 resolvedRecipients.push({
                   contactId: c.id,
                   email: c.email.trim(),
                   name: c.name || c.email.split("@")[0]
-                });
-              }
-            }
-
-            const allUsers = await db.select().from(users);
-            for (const u of allUsers) {
-              if (u.email && u.email.trim() && u.email.includes("@")) {
-                const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
-                resolvedRecipients.push({
-                  contactId: null,
-                  email: u.email.trim(),
-                  name: fullName
                 });
               }
             }
@@ -394,7 +396,11 @@ export class EmailCampaignController {
       .innerJoin(emailCampaignMeta, eq(campaigns.id, emailCampaignMeta.campaignId))
       .where(and(
         eq(campaigns.createdBy, req.user!.id),
-        eq(campaigns.platform, "email")
+        or(
+          eq(campaigns.platform, "email"),
+          eq(campaigns.campaignType, "email"),
+          eq(campaigns.apiType, "email_api")
+        )
       ))
       .orderBy(desc(campaigns.createdAt));
 
@@ -482,7 +488,11 @@ export class EmailCampaignController {
         .where(and(
           eq(campaigns.id, id),
           eq(campaigns.createdBy, req.user!.id),
-          eq(campaigns.platform, "email")
+          or(
+            eq(campaigns.platform, "email"),
+            eq(campaigns.campaignType, "email"),
+            eq(campaigns.apiType, "email_api")
+          )
         ))
         .returning();
 
@@ -542,7 +552,11 @@ export class EmailCampaignController {
       .from(campaigns)
       .where(and(
         eq(campaigns.createdBy, req.user!.id),
-        eq(campaigns.platform, "email")
+        or(
+          eq(campaigns.platform, "email"),
+          eq(campaigns.campaignType, "email"),
+          eq(campaigns.apiType, "email_api")
+        )
       ));
 
       const totalCampaigns = userCampaigns.length;
@@ -593,8 +607,9 @@ export class EmailCampaignController {
   static async getAudienceEstimate(req: Request, res: Response) {
     try {
       const { audienceType = "all", groupId, groupIds, contactIds, manualEmails } = req.query;
-      const { contacts, groups, users } = await import("@shared/schema");
+      const { contacts, groups } = await import("@shared/schema");
 
+      const tenantCondition = await getTenantScopedContactsCondition(req.user);
       let resolved: Array<{ name: string; email: string }> = [];
 
       if ((audienceType === "specific" || audienceType === "users") && contactIds) {
@@ -602,32 +617,20 @@ export class EmailCampaignController {
           ? (contactIds as string[])
           : String(contactIds).split(",").map(s => s.trim()).filter(Boolean);
 
-        const userIds: string[] = [];
         const contactIdsList: string[] = [];
 
         for (const id of idList) {
-          if (typeof id === "string" && id.startsWith("user_")) {
-            userIds.push(id.replace(/^user_/, ""));
-          } else if (typeof id === "string" && id.startsWith("contact_")) {
+          if (typeof id === "string" && id.startsWith("contact_")) {
             contactIdsList.push(id.replace(/^contact_/, ""));
-          } else {
-            userIds.push(id);
+          } else if (typeof id === "string" && !id.startsWith("user_")) {
             contactIdsList.push(id);
           }
         }
 
-        if (userIds.length > 0) {
-          const userRows = await db.select().from(users).where(inArray(users.id, userIds));
-          for (const u of userRows) {
-            if (u.email && u.email.trim() && u.email.includes("@")) {
-              const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
-              resolved.push({ name: fullName, email: u.email.trim() });
-            }
-          }
-        }
-
         if (contactIdsList.length > 0) {
-          const rows = await db.select().from(contacts).where(inArray(contacts.id, contactIdsList));
+          const baseCondition = inArray(contacts.id, contactIdsList);
+          const whereCondition = tenantCondition ? and(baseCondition, tenantCondition) : baseCondition;
+          const rows = await db.select().from(contacts).where(whereCondition);
           for (const r of rows) {
             if (r.email && r.email.trim() && r.email.includes("@")) {
               resolved.push({ name: r.name, email: r.email.trim() });
@@ -646,7 +649,10 @@ export class EmailCampaignController {
           const groupNames = groupRows.map(g => g.name);
           const targetNames = Array.from(new Set([...groupNames, ...rawGroups]));
 
-          const allContacts = await db.select().from(contacts);
+          const scopedContactsQuery = tenantCondition
+            ? db.select().from(contacts).where(tenantCondition)
+            : db.select().from(contacts);
+          const allContacts = await scopedContactsQuery;
           const matched = allContacts.filter(c => {
             const cGroups: string[] = (c.groups as any) || [];
             return targetNames.some(gn => cGroups.includes(gn) || gn === c.id);
@@ -658,19 +664,14 @@ export class EmailCampaignController {
           }
         }
       } else {
-        // All contacts with email + platform registered users with email
-        const allContacts = await db.select().from(contacts);
+        // All tenant contacts with email
+        const scopedContactsQuery = tenantCondition
+          ? db.select().from(contacts).where(tenantCondition)
+          : db.select().from(contacts);
+        const allContacts = await scopedContactsQuery;
         for (const c of allContacts) {
           if (c.email && c.email.trim() && c.email.includes("@")) {
             resolved.push({ name: c.name, email: c.email.trim() });
-          }
-        }
-
-        const allUsers = await db.select().from(users);
-        for (const u of allUsers) {
-          if (u.email && u.email.trim() && u.email.includes("@")) {
-            const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
-            resolved.push({ name: fullName, email: u.email.trim() });
           }
         }
       }
@@ -683,9 +684,20 @@ export class EmailCampaignController {
       }
       const uniqueList = Array.from(map.values());
 
+      // Get tenant database totals for clarity in frontend
+      const scopedContactsForTotals = tenantCondition
+        ? db.select({ id: contacts.id, email: contacts.email }).from(contacts).where(tenantCondition)
+        : db.select({ id: contacts.id, email: contacts.email }).from(contacts);
+      const dbContacts = await scopedContactsForTotals;
+      const withEmail = dbContacts.filter(c => c.email && c.email.trim() && c.email.includes("@")).length;
+
       res.json({
         total: uniqueList.length,
         samples: uniqueList.slice(0, 5),
+        stats: {
+          totalContactsInDb: dbContacts.length,
+          contactsWithEmailCount: withEmail,
+        }
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -695,7 +707,7 @@ export class EmailCampaignController {
   static async searchContactsWithEmail(req: Request, res: Response) {
     try {
       const { query = "", limit = 80 } = req.query;
-      const { contacts, users } = await import("@shared/schema");
+      const { contacts } = await import("@shared/schema");
       const q = String(query).toLowerCase().trim();
 
       const combined: Array<{
@@ -703,30 +715,16 @@ export class EmailCampaignController {
         name: string;
         email: string;
         phone?: string | null;
-        type: "user" | "contact";
-        role?: string;
+        type: "contact";
         groups?: string[];
       }> = [];
 
-      // 1. Platform Registered Users (always have email)
-      const allUsers = await db.select().from(users);
-      for (const u of allUsers) {
-        const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username;
-        const matches = !q || fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.username.toLowerCase().includes(q);
-        if (matches && u.email && u.email.includes("@")) {
-          combined.push({
-            id: `user_${u.id}`,
-            name: fullName,
-            email: u.email.trim(),
-            type: "user",
-            role: u.role || "user",
-            groups: ["Platform User"],
-          });
-        }
-      }
+      const tenantCondition = await getTenantScopedContactsCondition(req.user);
+      const scopedContactsQuery = tenantCondition
+        ? db.select().from(contacts).where(tenantCondition)
+        : db.select().from(contacts);
+      const allContacts = await scopedContactsQuery;
 
-      // 2. CRM Contacts
-      const allContacts = await db.select().from(contacts);
       for (const c of allContacts) {
         const hasEmail = Boolean(c.email && c.email.trim() && c.email.includes("@"));
         const matches = !q || (c.name && c.name.toLowerCase().includes(q)) || (c.email && c.email.toLowerCase().includes(q)) || (c.phone && c.phone.includes(q));
@@ -748,6 +746,36 @@ export class EmailCampaignController {
         contacts: combined.slice(0, Number(limit)),
         total: combined.length
       });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  static async updateContactEmail(req: Request, res: Response) {
+    try {
+      const { contactId, email } = req.body;
+      if (!contactId || !email || !String(email).includes("@")) {
+        return res.status(400).json({ error: "Valid contactId and email are required" });
+      }
+
+      const { contacts } = await import("@shared/schema");
+      const cleanId = String(contactId).replace(/^contact_/, "");
+
+      const tenantCondition = await getTenantScopedContactsCondition(req.user);
+      const whereCondition = tenantCondition
+        ? and(eq(contacts.id, cleanId), tenantCondition)
+        : eq(contacts.id, cleanId);
+
+      const [updated] = await db.update(contacts)
+        .set({ email: String(email).trim().toLowerCase(), updatedAt: new Date() })
+        .where(whereCondition)
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "Contact not found or access denied" });
+      }
+
+      res.json({ success: true, contact: updated });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

@@ -10,6 +10,8 @@ import {
   TrendingUp,
   Users,
   MessageCircle,
+  CreditCard,
+  Mail,
 } from "lucide-react";
 import { Link } from "wouter";
 import { useTranslation } from "@/lib/i18n";
@@ -19,6 +21,23 @@ const UseCases = () => {
   const { t } = useTranslation();
 
   const useCases = [
+    {
+      icon: CreditCard,
+      title: "Fintech & Digital Banking",
+      description: "Send instant transactional payment receipts, secure OTP codes, virtual card alerts, and monthly statements via Email and WhatsApp.",
+      color: "from-blue-600 to-indigo-600",
+      bgColor: "bg-blue-50",
+      stats: {
+        increase: "99.9%",
+        metric: "Instant Delivery Rate",
+      },
+      features: [
+        "Real-time payment & debit receipts",
+        "Instant two-factor (2FA) OTP alerts",
+        "Virtual dollar card creation notices",
+        "Automated monthly PDF account statements",
+      ],
+    },
     {
       icon: ShoppingCart,
       title: t("Landing.useCasesSec.useCases.0.title"),

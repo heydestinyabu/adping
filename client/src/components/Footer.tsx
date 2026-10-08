@@ -39,9 +39,10 @@ const Footer: React.FC = () => {
 
   const links = {
     product: [
-      { name: productLinks[0], href: "/#features" },
-      { name: productLinks[1], href: "/#how-it-works" },
-      { name: productLinks[2], href: "/#use-cases" },
+      { name: productLinks[0] || "Features", href: "/#features" },
+      { name: "Email Marketing & Builder", href: "/email-templates" },
+      { name: productLinks[1] || "How It Works", href: "/#how-it-works" },
+      { name: productLinks[2] || "Use Cases", href: "/#use-cases" },
     ],
     company: [
       { name: companyLinks[0], href: "/about" },
@@ -55,6 +56,7 @@ const Footer: React.FC = () => {
       { name: supportLinks[3], href: "#" },
     ],
     resources: [
+      { name: "Omnichannel Suite Showcase", href: "/#email-suite" },
       { name: resourcesLinks[1], href: "/case-studies" },
       { name: resourcesLinks[2], href: "/whatsapp-guide" },
       { name: resourcesLinks[3], href: "/best-practices" },

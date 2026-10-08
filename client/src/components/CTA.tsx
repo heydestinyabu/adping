@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, MessageCircle, Zap, Shield, Clock } from "lucide-react";
+import { ArrowRight, MessageCircle, Zap, Shield, Clock, Mail, Workflow } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { Link } from "wouter";
 
@@ -28,7 +28,7 @@ const CTA: React.FC = () => {
         <div className="text-center mb-16">
           <div className="inline-flex items-center bg-white/15 backdrop-blur-md text-white/90 px-5 py-2 rounded-full text-sm font-medium mb-8 border border-white/10">
             <MessageCircle className="w-4 h-4 mr-2" />
-            {t("Landing.ctaSec.introTagline")}
+            100% Free Forever • Unlimited Access
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight tracking-tight">
@@ -44,9 +44,16 @@ const CTA: React.FC = () => {
               href="/contact"
               className="bg-white text-emerald-700 px-8 py-4 rounded-xl font-semibold hover:bg-white/95 transition-all duration-200 transform hover:scale-[1.02] shadow-lg shadow-black/10 flex items-center group text-lg"
             >
-              {t("Landing.ctaSec.buttons.startTrial")}
+              <span>Get Started 100% Free</span>
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>
+            <a
+              href="/#features-suite"
+              className="bg-white/15 backdrop-blur-md text-white border border-white/30 hover:bg-white/25 px-8 py-4 rounded-xl font-semibold transition-all duration-200 flex items-center group text-lg"
+            >
+              <Workflow className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+              Explore Free Suite
+            </a>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 max-w-4xl mx-auto">

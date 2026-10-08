@@ -12,7 +12,6 @@ import {
   Bell,
   Globe,
   ScrollText,
-  CreditCard,
   Headphones,
   Users,
   Key,
@@ -37,7 +36,6 @@ import NotificationPreferences from "@/components/settings/NotificationPreferenc
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import LanguageManagement from "@/pages/LanguageManagement";
 import Logs from "@/pages/logs";
-import BillingSubscriptionPage from "@/components/billing-subscription-page";
 import UserSupportTicketsNew from "@/pages/user-support-tickets";
 import TeamPage from "@/pages/team";
 import EmailProviderSettings from "@/components/settings/EmailProviderSettings";
@@ -94,6 +92,13 @@ export default function Settings() {
     };
   }, []);
 
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", newTab);
+    window.history.pushState({}, "", url.toString());
+  };
+
   const { data: versionData } = useQuery<{ version: string; product: string }>({
     queryKey: ["/api/version"],
     queryFn: () => fetch("/api/version").then((r) => r.json()),
@@ -118,7 +123,7 @@ export default function Settings() {
       <main className="p-6 my-4">
         <Tabs
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={handleTabChange}
           className="space-y-6"
         >
           <div className="overflow-x-auto -mx-1 px-1 pb-2">
@@ -172,12 +177,17 @@ export default function Settings() {
 
 
                   <TabsTrigger
-  value="ecommerce"
-  className={tabTriggerClass}
->
-  <Store className="w-4 h-4 shrink-0" />
-  <span>E-Commerce</span>
-</TabsTrigger>
+                    value="ecommerce"
+                    className={tabTriggerClass}
+                  >
+                    <Store className="w-4 h-4 shrink-0" />
+                    <span>E-Commerce</span>
+                  </TabsTrigger>
+
+                  <TabsTrigger value="ai_setting" className={tabTriggerClass}>
+                    <BotIcon className="w-4 h-4 shrink-0" />
+                    <span>{t("settings.ai_setting.tabName")}</span>
+                  </TabsTrigger>
                 </>
               )}
 
@@ -193,6 +203,11 @@ export default function Settings() {
                     <span>Email Identity</span>
                   </TabsTrigger>
 
+                  <TabsTrigger value="email_providers" className={tabTriggerClass}>
+                    <Server className="w-4 h-4 shrink-0" />
+                    <span>Email Providers & SMTP</span>
+                  </TabsTrigger>
+
                   <TabsTrigger value="ai_setting" className={tabTriggerClass}>
                     <BotIcon className="w-4 h-4 shrink-0" />
                     <span>{t("settings.ai_setting.tabName")}</span>
@@ -201,11 +216,6 @@ export default function Settings() {
                   <TabsTrigger value="message_logs" className={tabTriggerClass}>
                     <ScrollText className="w-4 h-4 shrink-0" />
                     <span>{t("settings.tabs.messageLogs")}</span>
-                  </TabsTrigger>
-
-                  <TabsTrigger value="billing" className={tabTriggerClass}>
-                    <CreditCard className="w-4 h-4 shrink-0" />
-                    <span>{t("settings.tabs.billingMembership")}</span>
                   </TabsTrigger>
 
                   <TabsTrigger value="support" className={tabTriggerClass}>
@@ -282,12 +292,12 @@ export default function Settings() {
                 <EmailSenderSettings />
               </TabsContent>
 
-              <TabsContent value="message_logs">
-                <Logs embedded={true} />
+              <TabsContent value="email_providers">
+                <EmailProviderSettings />
               </TabsContent>
 
-              <TabsContent value="billing">
-                <BillingSubscriptionPage embedded={true} />
+              <TabsContent value="message_logs">
+                <Logs embedded={true} />
               </TabsContent>
 
               <TabsContent value="support">
@@ -303,6 +313,10 @@ export default function Settings() {
               </TabsContent>
             </>
           )}
+
+          <TabsContent value="ai_setting">
+            <AISettings />
+          </TabsContent>
 
           <TabsContent value="api">
             <ApiKeySettings />

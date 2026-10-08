@@ -17,22 +17,11 @@ import { registerWhatsAppRoutes } from "./whatsapp.routes";
 import { registerWhatsappConfigRoutes } from "./whatsappConfig.routes";
 import { registerWebhookRoutes } from "./webhooks.routes";
 import { registerMessageRoutes } from "./messages.routes";
-import { registerPaymentsRoutes } from "./payment.routes";
 import { registerMessageLogsRoutes } from "./messages.logs.routes";
-import { registerPlansRoutes } from "./plans.routes";
-import { registerSubscriptionsRoutes } from "./subscriptions.routes";
 import {userRoutes} from "./user.route"
 import teamRoutes from "./team.routes";
 import authRoutes from "./auth.routes";
 import { registerSMTPRoutes } from "./smtp.route";
-import ecommerceRoutes from "./ecommerce.routes";
-import ecommerceSettingsRoutes from "./ecommerce-settings.routes";
-import emailRoutes from "./email.routes";
-import emailTrackingRoutes from "./email-tracking.routes";
-import emailApiV1Routes from "./email-api-v1.routes";
-import { requireApiKey } from "../middlewares/apikey.middleware";
-
-
 
 // Import error handler middleware
 import { errorHandler } from "../middlewares/error.middleware";
@@ -40,7 +29,6 @@ import { registerPanelConfigRoutes } from "./panel.config.routes";
 import { registerStorageSettingsRoutes } from "./storage.settings.route";
 import { registerAISettingsRoutes } from "./ai.settings.routes";
 import { registerWidgetRoutes } from "./chatbot.routes";
-import { registerTicketsRoutes } from "./support.tickets.routes";
 import { registerNotificationsRoutes } from "./notifications.routes";
 import { requireAuth } from "../middlewares/auth.middleware";
 
@@ -55,27 +43,9 @@ export async function registerRoutes(app: Express, existingServer?: Server): Pro
   // Auth routes (no authentication required)
   app.use("/api/auth", authRoutes);
 
-
-  
-  app.use(
-  "/api/ecommerce",
-  ecommerceRoutes
-);
-
-app.use(
-  "/api/ecommerce/settings",
-  ecommerceSettingsRoutes
-);
-
-  // Email Marketing Routes
-  app.use("/api/email", emailRoutes);
-  app.use("/api/public/email", emailTrackingRoutes);
-  app.use("/api/v1/email", requireApiKey, emailApiV1Routes);
-
   // Register all route modules
   registerWidgetRoutes(app);
   registerGroupRoutes(app);
-  registerPlansRoutes(app);
   registerNotificationsRoutes(app);
 
   userRoutes(app);
@@ -96,10 +66,7 @@ app.use(
   registerWebhookRoutes(app);
   registerMessageRoutes(app);
   registerMessageLogsRoutes(app);
-  registerPanelConfigRoutes(app)
-  registerPaymentsRoutes(app);
-  registerTicketsRoutes(app);
-  registerSubscriptionsRoutes(app);
+  registerPanelConfigRoutes(app);
   registerTrainingRoutes(app);
   registerLanguageRoutes(app);
   registerClientApiRoutes(app);

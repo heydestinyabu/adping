@@ -602,6 +602,15 @@ export const importContacts = asyncHandler(
     // Validate every contact and split into duplicates / to-insert / errors.
     for (const contact of incomingContacts) {
       if (existingPhones.has(contact.phone)) {
+        if (contact.email && typeof contact.email === "string" && contact.email.includes("@")) {
+          try {
+            await db.update(contacts)
+              .set({ email: contact.email.trim().toLowerCase(), updatedAt: new Date() })
+              .where(eq(contacts.phone, contact.phone));
+          } catch (e) {
+            // non-blocking
+          }
+        }
         duplicates.push({ contact, reason: "Phone number already exists" });
         continue;
       }

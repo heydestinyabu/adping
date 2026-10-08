@@ -18,7 +18,6 @@ import { CampaignStatistics } from "@/components/campaigns/CampaignStatistics";
 import { CampaignsTable } from "@/components/campaigns/CampaignsTable";
 import { CampaignDetailsDialog } from "@/components/campaigns/CampaignDetailsDialog";
 import { CreateCampaignDialog } from "@/components/campaigns/CreateCampaignDialog";
-import { CreateEmailCampaignDialog } from "@/components/campaigns/CreateEmailCampaignDialog";
 import { useTranslation } from "@/lib/i18n";
 import { useAuth } from "@/contexts/auth-context";
 import { api } from "@/lib/api";
@@ -36,7 +35,6 @@ export default function Campaigns() {
 
   const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [createEmailDialogOpen, setCreateEmailDialogOpen] = useState(false);
   const [campaignType, setCampaignType] = useState<string>("");
 
   // Pagination state
@@ -365,8 +363,8 @@ export default function Campaigns() {
   return (
       <div className="container mx-auto dots-bg relative">
       <Header
-        title={t("campaigns.title")}
-        subtitle={t("campaigns.subtitle")}
+        title="WhatsApp Campaigns"
+        subtitle="Create, schedule, and track your WhatsApp marketing campaigns."
         action={
           userRole !== "superadmin"
             ? {
@@ -374,13 +372,6 @@ export default function Campaigns() {
                 onClick: () => setCreateDialogOpen(true),
               }
             : undefined
-        }
-        extraActions={
-          userRole !== "superadmin" ? (
-            <Button onClick={() => setCreateEmailDialogOpen(true)} variant="outline" className="bg-white border-green-600 text-green-600 hover:bg-green-50 hidden sm:flex">
-              + Email Campaign
-            </Button>
-          ) : undefined
         }
       />
 
@@ -391,8 +382,8 @@ export default function Campaigns() {
       <div className="px-4 py-4">
         <Card>
           <CardHeader>
-            <CardTitle>{t("campaigns.allCampaigns")}</CardTitle>
-            <CardDescription>{t("campaigns.listDescription")}</CardDescription>
+            <CardTitle>All WhatsApp Campaigns</CardTitle>
+            <CardDescription>Manage and monitor your WhatsApp marketing campaigns</CardDescription>
           </CardHeader>
           <CardContent>
             <CampaignsTable
@@ -409,7 +400,7 @@ export default function Campaigns() {
               <div className="flex items-center gap-2 text-sm text-gray-700">
                 <span>
                   Showing {(page - 1) * limit + 1} to{" "}
-                  {Math.min(page * limit, total)} of {total} campaigns
+                  {Math.min(page * limit, total)} of {total} WhatsApp campaigns
                 </span>
 
                 <select
@@ -484,13 +475,6 @@ export default function Campaigns() {
         isCreating={createCampaignMutation.isPending}
         messagingLimit={channelMessagingLimit}
         messagingTier={messagingLimitData?.tier}
-      />
-
-      <CreateEmailCampaignDialog
-        open={createEmailDialogOpen}
-        onOpenChange={setCreateEmailDialogOpen}
-        userId={userId}
-        groups={groupsData}
       />
 
       <CampaignDetailsDialog

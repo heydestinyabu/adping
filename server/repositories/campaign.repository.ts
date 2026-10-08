@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { eq, desc, sql, lte } from "drizzle-orm";
+import { eq, and, desc, sql, lte } from "drizzle-orm";
 import { 
   campaigns, 
   users,
@@ -8,8 +8,7 @@ import {
   type InsertCampaign 
 } from "@shared/schema";
 
-
-
+const isWhatsAppCampaign = sql`(${campaigns.platform} IS NULL OR ${campaigns.platform} != 'email') AND (${campaigns.campaignType} IS NULL OR ${campaigns.campaignType} != 'email') AND (${campaigns.apiType} IS NULL OR ${campaigns.apiType} != 'email_api')`;
 
 export class CampaignRepository {
   async getAllold(page: number = 1, limit: number = 10): Promise<{
@@ -111,14 +110,15 @@ async getAll(
 
   // ✅ TEMPLATE JOIN
   .leftJoin(templates, eq(templates.id, campaigns.templateId))
-
+  .where(isWhatsAppCampaign)
   .orderBy(desc(campaigns.createdAt))
   .limit(limit)
   .offset(offset);
 
   const totalResult = await db
     .select({ total: sql<number>`COUNT(*)` })
-    .from(campaigns);
+    .from(campaigns)
+    .where(isWhatsAppCampaign);
 
   return {
     data: campaignsList,
@@ -149,7 +149,7 @@ async getAll(
   const data = await db
     .select()
     .from(campaigns)
-    .where(eq(campaigns.channelId, channelId))
+    .where(and(eq(campaigns.channelId, channelId), isWhatsAppCampaign))
     .orderBy(desc(campaigns.createdAt))
     .limit(limit)
     .offset(offset);
@@ -158,7 +158,7 @@ async getAll(
   const [{ count }] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(campaigns)
-    .where(eq(campaigns.channelId, channelId));
+    .where(and(eq(campaigns.channelId, channelId), isWhatsAppCampaign));
 
   return {
     data,
@@ -236,8 +236,8 @@ async getAll(
 
   .leftJoin(templates, eq(templates.id, campaigns.templateId))
 
-  // ✅ IMPORTANT
-  .where(eq(campaigns.createdBy, userId))
+  // ✅ IMPORTANT - Exclude email campaigns from WhatsApp list
+  .where(and(eq(campaigns.createdBy, userId), isWhatsAppCampaign))
 
   .orderBy(desc(campaigns.createdAt))
   .limit(limit)
@@ -246,7 +246,7 @@ async getAll(
   const totalResult = await db
     .select({ total: sql<number>`COUNT(*)` })
     .from(campaigns)
-    .where(eq(campaigns.createdBy, userId));
+    .where(and(eq(campaigns.createdBy, userId), isWhatsAppCampaign));
 
   return {
     data: campaignsList,
@@ -278,6 +278,9 @@ async getAll(
           ${campaigns.status} = 'scheduled'
           AND ${campaigns.scheduledAt} IS NOT NULL
           AND ${campaigns.scheduledAt} <= ${now}
+          AND (${campaigns.platform} IS NULL OR ${campaigns.platform} != 'email')
+          AND (${campaigns.campaignType} IS NULL OR ${campaigns.campaignType} != 'email')
+          AND (${campaigns.apiType} IS NULL OR ${campaigns.apiType} != 'email_api')
         `
       )
       .orderBy(campaigns.scheduledAt);

@@ -112,6 +112,9 @@ export function startScheduledCampaignCron() {
                   SELECT 1 FROM ${messageQueue}
                   WHERE ${messageQueue.campaignId} = ${campaignsTable.id}
                 )
+                AND (${campaignsTable.platform} IS NULL OR ${campaignsTable.platform} != 'email')
+                AND (${campaignsTable.campaignType} IS NULL OR ${campaignsTable.campaignType} != 'email')
+                AND (${campaignsTable.apiType} IS NULL OR ${campaignsTable.apiType} != 'email_api')
               `
             ),
           "orphaned-queued select",

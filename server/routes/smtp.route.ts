@@ -10,8 +10,8 @@ import { upload, handleDigitalOceanUpload } from "../middlewares/upload.middlewa
 import type { Express } from "express";
 
 export function registerSMTPRoutes(app: Express) {
-  app.post("/api/admin/smtpConfig", requireAuth, requireRole("superadmin"), upsertSMTPConfig);
-  app.get("/api/admin/getSmtpConfig", requireAuth, requireRole("superadmin"), getSMTPConfigHandler);  
+  app.post("/api/admin/smtpConfig", requireAuth, requireRole("superadmin", "admin"), upsertSMTPConfig);
+  app.get("/api/admin/getSmtpConfig", requireAuth, requireRole("superadmin", "admin"), getSMTPConfigHandler);  
 
   app.post("/api/admin/smtp/upload-logo", requireAuth, requireRole("superadmin"), upload.single('logo'), handleDigitalOceanUpload, async (req, res) => {
     try {

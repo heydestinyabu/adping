@@ -60,10 +60,10 @@
     "navigation": {
         "dashboard": "Dashboard",
         "contacts": "Contacts",
-        "campaigns": "Campaigns",
-        "master_campaigns": "Master Campaigns",
-        "templates": "Templates",
-        "master_templates": "Master Templates",
+        "campaigns": "WhatsApp Campaigns",
+        "master_campaigns": "WhatsApp Campaigns",
+        "templates": "WhatsApp Templates",
+        "master_templates": "WhatsApp Templates",
         "inbox": "Team Inbox",
         "automations": "Automations",
         "messageLogs": "Message Logs",
@@ -502,22 +502,22 @@
         }
     },
     "campaigns": {
-        "title": "Campaigns",
+        "title": "WhatsApp Campaigns",
         "viewDetails": "View Details",
         "pause": "Pause",
         "resume": "Resume",
         "delete": "Delete",
-        "subtitle": "Create and manage your WhatsApp marketing campaigns",
-        "createCampaign": "Create Campaign",
+        "subtitle": "Create, schedule, and track your WhatsApp marketing campaigns",
+        "createCampaign": "Create WhatsApp Campaign",
         "campaignName": "Campaign Name",
         "campaignType": "Campaign Type",
         "template": "Template",
         "recipients": "Recipients",
         "schedule": "Schedule",
-        "allCampaigns": "All Campaigns",
-        "listDescription": "Manage and monitor your campaigns",
+        "allCampaigns": "All WhatsApp Campaigns",
+        "listDescription": "Manage and monitor your WhatsApp campaigns",
         "activeCampaigns": "Active Campaigns",
-        "totalCampaigns": "Total Campaigns",
+        "totalCampaigns": "Total WhatsApp Campaigns",
         "totalRecipients": "Total Recipients",
         "completedCampaigns": "Completed Campaigns",
         "draftCampaigns": "Draft Campaigns",
@@ -579,7 +579,7 @@
         "apiCampaigns": "API Campaigns"
     },
     "templates": {
-        "title": "Templates",
+        "title": "WhatsApp Templates",
         "userSubTitle": "Manage your WhatsApp message templates",
         "superAdminSubTitle": "Manage WhatsApp message templates across all channels",
         "mess_Temp": "Message Templates",
@@ -1065,10 +1065,10 @@
             ]
         },
         "heroSec": {
-            "animatedBgGreenText": "Free WhatsApp Marketing Platform - Bring Your Own API",
+            "animatedBgGreenText": "Omnichannel Marketing Platform — WhatsApp & Email Campaigns",
             "headline": "Scale Your Business with",
-            "highlightText": "WhatsApp Marketing",
-            "subHeadline": "Connect your Meta WhatsApp Business API and unlock powerful automation, bulk messaging, and advanced analytics. Start free, scale unlimited.",
+            "highlightText": "WhatsApp & Email Marketing",
+            "subHeadline": "Unite Meta WhatsApp Business API and high-deliverability Email Campaigns in one powerful growth suite. Build stunning visual templates, automate customer journeys, and drive conversions across every inbox.",
             "startTrialButton": "Start Free Trial",
             "watchDemoButton": "Watch 2-min Demo",
             "trustedByText": "Trusted by 10,000+ businesses worldwide",
@@ -1099,13 +1099,13 @@
             }
         },
         "featuresSec": {
-            "introTagline": "Powerful WhatsApp Marketing Features",
-            "headlinePre": "Everything You Need to",
-            "headlineHighlight": "Scale Your Business",
-            "subHeadline": "From bulk messaging to AI chatbots, our platform provides all the tools you need to create successful WhatsApp marketing campaigns",
+            "introTagline": "Omnichannel Marketing Suite",
+            "headlinePre": "Everything You Need for",
+            "headlineHighlight": "WhatsApp & Email Marketing",
+            "subHeadline": "From multi-channel broadcast campaigns to AI chatbots and visual email template builders, our platform provides all the tools you need to engage customers across WhatsApp and Email.",
             "demo": "Demo",
             "campaign_progress": "Campaign Progress",
-            "whatsAppAPI":"WHATSAPP Business CAMPAING",
+            "whatsAppAPI":"OMNICHANNEL CAMPAIGN ENGINE",
             "featureTabs": [
                 {
                     "title": "Bulk Messaging",
@@ -1202,49 +1202,49 @@
             ]
         },
         "howItWorksSec": {
-            "introTagline": "Simple 4-Step Process",
+            "introTagline": "Simple 4-Step Omnichannel Process",
             "headlinePre": "Get Started in",
             "headlineHighlight": "Under 5 Minutes",
-            "subHeadline": "Our streamlined onboarding process gets you up and running with WhatsApp marketing faster than any other platform",
+            "subHeadline": "Our streamlined onboarding gets you broadcasting across WhatsApp and Email faster than any other platform",
             "steps": [
                 {
-                    "title": "Connect Your Meta API",
-                    "description": "Bring your own WhatsApp Business API from Meta and connect it to our platform in seconds",
+                    "title": "Connect WhatsApp & Email Senders",
+                    "description": "Connect your Meta WhatsApp Business API and custom SMTP or SendGrid/Brevo/Resend accounts in seconds",
                     "details": [
-                        "Secure API integration",
-                        "One-click setup process",
-                        "No technical knowledge required",
-                        "Full data ownership"
+                        "Meta WhatsApp API & Custom SMTP",
+                        "One-click verification process",
+                        "SPF / DKIM deliverability support",
+                        "Full data privacy & ownership"
                     ]
                 },
                 {
-                    "title": "Import Your Contacts",
-                    "description": "Upload your customer database or sync directly from your CRM and existing tools",
+                    "title": "Import & Segment Audience",
+                    "description": "Upload customer lists with phone numbers and emails or sync directly from your CRM",
                     "details": [
-                        "CSV/Excel import support",
-                        "CRM integrations available",
+                        "CSV/Excel import with phone & email",
+                        "Custom tags and behavioral segments",
                         "Smart duplicate detection",
                         "Automatic data validation"
                     ]
                 },
                 {
                     "title": "Create & Launch Campaigns",
-                    "description": "Design beautiful messages with our drag-and-drop builder and launch targeted campaigns",
+                    "description": "Design responsive emails with our visual builder or craft high-converting WhatsApp broadcasts",
                     "details": [
-                        "Visual campaign builder",
-                        "Pre-built templates",
-                        "Personalization options",
-                        "A/B testing capabilities"
+                        "Visual drag-and-drop email builder",
+                        "Pre-built fintech & marketing templates",
+                        "Dynamic personalized variables",
+                        "Scheduled & automated broadcasts"
                     ]
                 },
                 {
                     "title": "Track & Optimize",
-                    "description": "Monitor performance in real-time and optimize your campaigns for better results",
+                    "description": "Monitor unified deliverability, email open rates, click tracking, and WhatsApp read receipts",
                     "details": [
-                        "Real-time analytics",
-                        "Delivery tracking",
-                        "Engagement metrics",
-                        "ROI calculations"
+                        "Real-time delivery & open tracking",
+                        "Click-through & conversion metrics",
+                        "Automated retry & queue engine",
+                        "Exportable performance reports"
                     ]
                 }
             ],
@@ -1253,11 +1253,11 @@
                 "nextStep": "Next Step"
             },
             "visualDemo": {
-                "whatsAppBusinessDashboard": "WhatsApp Business Dashboard"
+                "whatsAppBusinessDashboard": "Omnichannel Campaign Dashboard"
             },
             "cta": {
                 "readyToGetStarted": "Ready to Get Started?",
-                "joinText": "Join thousands of businesses already using our platform to scale their WhatsApp marketing",
+                "joinText": "Join thousands of businesses already using our platform to scale their WhatsApp and Email marketing",
                 "startFreeTrial": "Start Your Free Trial"
             }
         },
@@ -1474,8 +1474,8 @@
         },
         "ctaSec": {
             "introTagline": "Join 10,000+ Businesses Already Growing",
-            "headline": "Ready to Scale Your Business with WhatsApp Marketing?",
-            "subHeadline": "Start your free trial today. No credit card required. Connect your Meta API and begin sending campaigns in under 5 minutes.",
+            "headline": "Ready to Scale with WhatsApp & Email Marketing?",
+            "subHeadline": "Start your free trial today. No credit card required. Connect your Meta API and Email senders to launch omnichannel campaigns in under 5 minutes.",
             "buttons": {
                 "startTrial": "Start Free Trial",
                 "scheduleDemo": "Schedule Demo"

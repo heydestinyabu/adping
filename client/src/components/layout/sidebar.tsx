@@ -110,46 +110,17 @@ function getNavItems(role: string): NavItem[] {
             {
                 href: "/campaigns",
                 icon: Megaphone,
-                labelKey: "navigation.campaigns",
+                labelKey: "WhatsApp Campaigns",
                 color: "text-orange-600",
                 allowedRoles: ["superadmin", "admin"],
             },
             {
                 href: "/templates",
                 icon: FileText,
-                labelKey: "navigation.templates",
+                labelKey: "WhatsApp Templates",
                 color: "text-purple-600",
                 allowedRoles: ["superadmin", "admin"],
             },
-            {
-                href: "/email-campaigns",
-                icon: Mail,
-                labelKey: "Email Campaigns",
-                color: "text-emerald-500",
-                allowedRoles: ["superadmin", "admin"],
-            },
-            {
-                href: "/email-templates",
-                icon: FileText,
-                labelKey: "Email Templates",
-                color: "text-purple-400",
-                allowedRoles: ["superadmin", "admin"],
-            },
-            {
-                href: "/email-senders",
-                icon: ShieldCheck,
-                labelKey: "Senders & Domains",
-                color: "text-blue-500",
-                allowedRoles: ["superadmin", "admin"],
-            },
-            {
-                href: "/email-analytics",
-                icon: TrendingUp,
-                labelKey: "Email Analytics",
-                color: "text-teal-500",
-                allowedRoles: ["superadmin", "admin"],
-            },
-
             {
                 href: "/automation",
                 icon: Zap,
@@ -179,42 +150,11 @@ function getNavItems(role: string): NavItem[] {
                 color: "text-cyan-600",
                 allowedRoles: ["admin"],
             },
-
-            // {
-            //   href: "/settings",
-            //   icon: Settings,
-            //   labelKey: "navigation.settings",
-            //   color: "text-gray-600",
-            //   alwaysVisible: true,
-            //   allowedRoles: ["superadmin", "admin"],
-            // },
-
-            {
-                href: "/plans",
-                icon: Bell,
-                labelKey: "navigation.plans",
-                color: "text-blue-400",
-                allowedRoles: ["superadmin"],
-            },
-            {
-                href: "/gateway",
-                icon: Bell,
-                labelKey: "navigation.plans",
-                color: "text-blue-400",
-                allowedRoles: ["superadmin"],
-            },
             {
                 href: "/languages",
                 icon: Globe,
                 labelKey: "navigation.languages",
                 color: "text-violet-500",
-                allowedRoles: ["superadmin"],
-            },
-            {
-                href: "/support-tickets",
-                icon: Bell,
-                labelKey: "navigation.tickets_support",
-                color: "text-blue-400",
                 allowedRoles: ["superadmin"],
             },
         ];
@@ -256,7 +196,7 @@ function getNavItems(role: string): NavItem[] {
             {
                 href: "/campaigns",
                 icon: Megaphone,
-                labelKey: "navigation.campaigns",
+                labelKey: "WhatsApp Campaigns",
                 color: "text-orange-600",
                 requiredPrefix: "campaigns.",
                 allowedRoles: ["team"],
@@ -264,40 +204,11 @@ function getNavItems(role: string): NavItem[] {
             {
                 href: "/templates",
                 icon: FileText,
-                labelKey: "navigation.templates",
+                labelKey: "WhatsApp Templates",
                 color: "text-purple-600",
                 requiredPrefix: "templates.",
                 allowedRoles: ["team"],
             },
-            {
-                href: "/email-campaigns",
-                icon: Mail,
-                labelKey: "Email Campaigns",
-                color: "text-emerald-500",
-                allowedRoles: ["team"],
-            },
-            {
-                href: "/email-templates",
-                icon: FileText,
-                labelKey: "Email Templates",
-                color: "text-purple-400",
-                allowedRoles: ["team"],
-            },
-            {
-                href: "/email-senders",
-                icon: ShieldCheck,
-                labelKey: "Senders & Domains",
-                color: "text-blue-500",
-                allowedRoles: ["team"],
-            },
-            {
-                href: "/email-analytics",
-                icon: TrendingUp,
-                labelKey: "Email Analytics",
-                color: "text-teal-500",
-                allowedRoles: ["team"],
-            },
-
             {
                 href: "/automation",
                 icon: Zap,
@@ -314,8 +225,6 @@ function getNavItems(role: string): NavItem[] {
                 requiredPrefix: "analytics.",
                 allowedRoles: ["team"],
             },
-
-            
             {
                 href: "/widget-builder",
                 icon: Bot,
@@ -323,34 +232,6 @@ function getNavItems(role: string): NavItem[] {
                 color: "text-teal-600",
                 alwaysVisible: true,
                 requiredPrefix: "widgetbuilder.",
-                allowedRoles: ["team"],
-            },
-
-
-            // {
-            //   href: "/settings",
-            //   icon: Settings,
-            //   labelKey: "navigation.settings",
-            //   color: "text-gray-600",
-            //   alwaysVisible: true,
-            //   requiredPrefix: "settings.",
-            //   allowedRoles: ["team"],
-            // },
-
-            {
-                href: "/plans",
-                icon: Bell,
-                labelKey: "navigation.plans",
-                color: "text-blue-400",
-                requiredPrefix: "plans.",
-                allowedRoles: ["team"],
-            },
-            {
-                href: "/gateway",
-                icon: Bell,
-                labelKey: "navigation.plans",
-                color: "text-blue-400",
-                requiredPrefix: "gateway.",
                 allowedRoles: ["team"],
             },
         ];
@@ -377,28 +258,14 @@ const sidebarItemsCategories = [
         color: "text-blue-500",
     },
     {
-        name: "navigation.master_campaigns",
+        name: "WhatsApp Campaigns",
         icon: Megaphone,
         path: "/campaigns",
         badge: "",
         color: "text-blue-600",
     },
     {
-        name: "Email Campaigns",
-        icon: Mail,
-        path: "/email-campaigns",
-        badge: "",
-        color: "text-emerald-500",
-    },
-    {
-        name: "Email Templates",
-        icon: FileText,
-        path: "/email-templates",
-        badge: "",
-        color: "text-purple-400",
-    },
-    {
-        name: "navigation.master_templates",
+        name: "WhatsApp Templates",
         icon: FileText,
         path: "/templates",
         badge: "",
@@ -424,19 +291,6 @@ const sidebarItemsCategories = [
         color: "text-pink-400",
     },
     {
-        name: "navigation.subscription_plans",
-        icon: MdOutlinePayment,
-        path: "/plans",
-        color: "text-blue-400",
-    },
-    {
-        name: "navigation.master_subscriptions",
-        icon: CheckCircle,
-        path: "/master-subscriptions",
-        badge: "",
-        color: "text-green-600",
-    },
-    {
         name: "navigation.transactions_logs",
         icon: AiOutlineTransaction,
         path: "/transactions-logs",
@@ -447,18 +301,6 @@ const sidebarItemsCategories = [
         icon: MessageSquare,
         path: "/message-logs",
         color: "text-cyan-600",
-    },
-    {
-        name: "navigation.payment_gateway",
-        icon: RiSecurePaymentFill,
-        path: "/gateway",
-        color: "text-[#ffb900]",
-    },
-    {
-        name: "navigation.support_tickets",
-        icon: MdOutlineSupportAgent,
-        path: "/support-tickets",
-        color: "text-black-400",
     },
     {
         name: "navigation.app_update",
@@ -799,57 +641,6 @@ useEffect(() => {
                                         item.color
                                     )
                                 )}
-
-
-                                        {isAdmin && (
-  <div className="space-y-1 border-t pt-3 mt-3">
-    <button
-      onClick={() => setEcommerceOpen(!ecommerceOpen)}
-      className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-50"
-    >
-      <div className="flex items-center">
-        <Store className="w-5 h-5 mr-3 text-green-600" />
-        <span>E-Commerce</span>
-      </div>
-
-      <ChevronDown
-        className={`w-4 h-4 transition-transform ${
-          ecommerceOpen ? "rotate-180" : ""
-        }`}
-      />
-    </button>
-
-    {ecommerceOpen && (
-      <div className="ml-6 space-y-1">
-        {renderLink("Stores", Store, "/ecommerce/stores")}
-        {/* {renderLink("Orders", ShoppingCart, "/ecommerce/orders")}
-        {renderLink("Products", Package, "/ecommerce/products")}
-        {renderLink("Customers", Users, "/ecommerce/customers")} */}
-        {renderLink(
-          "Abandoned Carts",
-          ShoppingCart,
-          "/ecommerce/abandoned-carts"
-        )}
-
-         {renderLink(
-      "COD Orders",
-      Wallet,
-      "/ecommerce/cod-orders"
-    )}
-        {/* {renderLink(
-          "Campaign Segments",
-          Users,
-          "/ecommerce/segments"
-        )}
-        {renderLink(
-          "Integrations",
-          Plug,
-          "/ecommerce/integrations"
-        )} */}
-      </div>
-    )}
-  </div>
-)}
                     </nav>
 
                     <div className="w-[180px] px-4 py-2 border-t border-gray-100 sm:hidden ">

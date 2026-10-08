@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Play, Users, TrendingUp, Zap } from "lucide-react";
+import { ArrowRight, Play, Users, TrendingUp, Zap, Mail, Workflow, Gift } from "lucide-react";
 import LoadingAnimation from "./LoadingAnimation";
 import { useTranslation } from "@/lib/i18n";
 import { Link } from "wouter";
 
 const TYPING_WORDS = [
-  "WhatsApp Marketing",
-  "Customer Engagement",
-  "Business Growth",
+  "WhatsApp & Email Marketing",
+  "Automated Cross-Channel Funnels",
+  "100% Free Forever Platform",
+  "High Deliverability Inboxes",
+  "Audience Growth & Engagement",
 ];
 
 const Hero = () => {
@@ -122,9 +124,9 @@ const Hero = () => {
 
       <div className="max-w-7xl mx-auto relative">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-8 border border-emerald-200/60 animate-[fadeInDown_0.6s_ease-out]">
-            <Zap className="w-4 h-4 mr-2" />
-            {t("Landing.heroSec.animatedBgGreenText")}
+          <div className="inline-flex items-center bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold mb-8 border border-emerald-200/60 shadow-xs animate-[fadeInDown_0.6s_ease-out]">
+            <Gift className="w-4 h-4 mr-2 text-emerald-600" />
+            100% Free Forever • No Credit Card Required • Zero Subscriptions
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight animate-[fadeIn_0.7s_ease-out]">
@@ -147,11 +149,19 @@ const Hero = () => {
                 <LoadingAnimation size="md" color="white" />
               ) : (
                 <>
-                  {t("Landing.heroSec.startTrialButton")}
+                  <span>Get Started 100% Free</span>
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                 </>
               )}
             </Link>
+
+            <a
+              href="#features-suite"
+              className="bg-white/90 backdrop-blur-sm text-gray-700 hover:text-emerald-600 px-7 py-3.5 rounded-xl font-semibold border border-gray-200 hover:border-emerald-300 transition-all duration-300 shadow-sm hover:shadow-md flex items-center group min-w-[180px] justify-center"
+            >
+              <Workflow className="w-4 h-4 mr-2 text-emerald-600 group-hover:scale-110 transition-transform" />
+              Explore Free Suite
+            </a>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 max-w-3xl mx-auto">

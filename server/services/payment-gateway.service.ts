@@ -1,6 +1,13 @@
-import Stripe from "stripe";
+// Payment gateways stubbed for lightweight campaign engine
+const Stripe: any = class {};
+type Stripe = any;
+declare namespace Stripe {
+  type Invoice = any;
+  type PaymentIntent = any;
+}
+const Razorpay: any = class {};
+type Razorpay = any;
 import { diployLogger, HTTP_STATUS, DIPLOY_BRAND } from "@diploy/core";
-import Razorpay from "razorpay";
 import axios from "axios";
 import { db } from "../db";
 import { plans, users, subscriptions, paymentProviders } from "@shared/schema";

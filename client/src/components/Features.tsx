@@ -14,6 +14,7 @@ import {
   Smartphone,
   Play,
   Sparkles,
+  Mail,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 
@@ -22,6 +23,24 @@ const Features = () => {
   const { t } = useTranslation();
 
   const features = [
+    {
+      icon: Mail,
+      title: "Email Marketing & Campaigns",
+      description: "Design pixel-perfect responsive emails with our visual builder, connect custom SMTP or SendGrid/Brevo/Resend, and broadcast targeted email newsletters at scale.",
+      color: "from-blue-600 to-indigo-600",
+      lightBg: "bg-blue-50",
+      lightColor: "text-blue-600",
+      demo: {
+        title: "Omnichannel Email Broadcast",
+        stats: "99.4% Deliverability • 42.8% Open Rate",
+        features: [
+          "Visual & HTML Template Builder with Live Preview",
+          "Custom SMTP, Brevo, SendGrid & Resend Support",
+          "Real-time Open, Click, and Unsubscribe Tracking",
+          "Automated Drip Sequences & Audience Segmentation",
+        ],
+      },
+    },
     {
       icon: MessageSquare,
       title: t("Landing.featuresSec.featureTabs.0.title"),
@@ -200,7 +219,9 @@ const Features = () => {
                 <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                 <span className="text-gray-500 text-xs ml-3 font-medium tracking-wide uppercase">
-                  {t("Landing.featuresSec.whatsAppAPI")}
+                  {features[activeTab].icon === Mail
+                    ? "OMNICHANNEL EMAIL & MESSAGING SUITE"
+                    : t("Landing.featuresSec.whatsAppAPI")}
                 </span>
               </div>
 
@@ -225,7 +246,7 @@ const Features = () => {
 
                 <div className="space-y-4">
                   {features[activeTab].demo.features && Array.isArray(features[activeTab].demo.features) &&
-                    (features[activeTab].demo.features as string[]).slice(0, 3).map((feat: string, idx: number) => (
+                    (features[activeTab].demo.features as string[]).slice(0, 4).map((feat: string, idx: number) => (
                       <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                         <div className="flex items-center gap-3">
                           <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${features[activeTab].color}`}></div>
@@ -242,13 +263,13 @@ const Features = () => {
                       {t("Landing.featuresSec.campaign_progress")}
                     </span>
                     <span className="text-sm font-semibold text-gray-900">
-                      {Math.round((activeTab + 1) * 16.67)}%
+                      {Math.round(((activeTab + 1) / features.length) * 100)}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className={`bg-gradient-to-r ${features[activeTab].color} h-2 rounded-full transition-all duration-1000`}
-                      style={{ width: `${(activeTab + 1) * 16.67}%` }}
+                      className={`bg-gradient-to-r ${features[activeTab].color} h-2 rounded-full transition-all duration-500`}
+                      style={{ width: `${Math.round(((activeTab + 1) / features.length) * 100)}%` }}
                     ></div>
                   </div>
                 </div>

@@ -141,186 +141,31 @@
 
 
 import { Request, Response, NextFunction } from "express";
-import { diployLogger, HTTP_STATUS, DIPLOY_BRAND } from "@diploy/core";
-import { and, eq, desc } from "drizzle-orm";
-import { db } from "server/db";
-import { plans, subscriptions, channels, automations, campaigns, contacts, sites } from "@shared/schema";
 
+/**
+ * requireSubscription middleware
+ * 
+ * The platform is 100% Free Forever with unlimited access for all users!
+ * Channels, contacts, automations, and campaigns are unlocked with zero restrictions.
+ */
 export const requireSubscription = (
-    requiredPermission: "channel" | "contacts" | "automation" | "campaign"
+    _requiredPermission: "channel" | "contacts" | "automation" | "campaign"
 ) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let userId: string | null = null;
+            const sessionUser = (req.session as any)?.user;
+            const siteId = req.body?.siteId;
 
-            const sessionUser = (req.session as any).user;
-            const siteId = req.body.siteId;
-
-            if (sessionUser) {
-                userId = sessionUser.role === "team" && sessionUser.createdBy
-                    ? sessionUser.createdBy
-                    : sessionUser.id;
-            }
-
-            // 🔹 CASE 2: Public widget
-            else if (siteId) {
-                const [site] = await db
-                    .select()
-                    .from(sites)
-                    .where(eq(sites.id, siteId));
-
-                if (!site) {
-                    return res.status(404).json({ error: "Invalid siteId." });
-                }
-
-                const [channel] = await db
-                    .select()
-                    .from(channels)
-                    .where(eq(channels.id, site.channelId));
-
-                if (!channel) {
-                    return res.status(404).json({ error: "Channel not found." });
-                }
-
-                userId = channel.createdBy;
-            }
-
-            // ❌ No identity → Reject
-            else {
-                return res.status(401).json({ error: "Unauthorized" });
-            }
-
-
-            // ------------------------------------------
-            // 🔥 FETCH ACTIVE SUBSCRIPTION (LATEST IF MULTIPLE)
-            // ------------------------------------------
-
-            // ------------------------------------------
-// 🔥 FETCH ACTIVE SUBSCRIPTION (CORRECT FILTER)
-// ------------------------------------------
-const activeSubs = await db
-  .select()
-  .from(subscriptions)
-  .where(
-    and(
-      eq(subscriptions.userId, userId),
-      eq(subscriptions.status, "active")
-    )
-  )
-  .orderBy(desc(subscriptions.createdAt));
-
-// ❌ No Active Subscription
-if (activeSubs.length === 0) {
-  return res.status(403).json({ error: "Subscription required." });
-}
-
-           
-
-            // ⚠️ If more than one, log but pick latest
-            if (activeSubs.length > 1) {
-                console.warn("⚠ Multiple active plans for user:", userId);
-            }
-
-            const sub = activeSubs[0]; // Use latest active plan
-
-
-            // ❌ Expired
-            if (new Date(sub.endDate) < new Date()) {
-                return res.status(403).json({ error: "Subscription expired." });
-            }
-
-
-            // ------------------------------------------
-            // 🔥 FETCH PLAN
-            // ------------------------------------------
-            const [plan] = await db
-                .select()
-                .from(plans)
-                .where(eq(plans.id, sub.planId));
-
-            if (!plan) {
-                return res.status(500).json({ error: "Plan not found." });
-            }
-
-            const permissionValue = plan.permissions?.[requiredPermission];
-
-            if (permissionValue === undefined || permissionValue === null || permissionValue === "" || permissionValue === "0") {
-                return res.status(403).json({
-                    error: `Your plan does not allow ${requiredPermission}.`,
-                });
-            }
-
-            if (String(permissionValue).toLowerCase() === "unlimited") {
+            // Allow authenticated session users and public widgets without blocking
+            if (sessionUser || siteId) {
                 return next();
             }
 
-            const limit = Number(permissionValue);
-
-            if (isNaN(limit) || limit <= 0) {
-                return res.status(403).json({
-                    error: `Your plan does not allow ${requiredPermission}.`,
-                });
-            }
-
-
-            // ------------------------------------------
-            // 🔥 COUNT USAGE
-            // ------------------------------------------
-
-            let currentCount = 0;
-
-            if (requiredPermission === "contacts") {
-                const data = await db
-                    .select()
-                    .from(contacts)
-                    .leftJoin(channels, eq(contacts.channelId, channels.id))
-                    .where(eq(channels.createdBy, userId));
-
-                currentCount = data.length;
-            }
-
-            if (requiredPermission === "channel") {
-                const data = await db
-                    .select()
-                    .from(channels)
-                    .where(eq(channels.createdBy, userId));
-
-                currentCount = data.length;
-            }
-
-            if (requiredPermission === "automation") {
-                const data = await db
-                    .select()
-                    .from(automations)
-                    .where(eq(automations.createdBy, userId));
-
-                currentCount = data.length;
-            }
-
-            if (requiredPermission === "campaign") {
-                const data = await db
-                    .select()
-                    .from(campaigns)
-                    .where(eq(campaigns.createdBy, userId));
-
-                currentCount = data.length;
-            }
-
-
-            // ------------------------------------------
-            // 🔥 FINAL LIMIT CHECK
-            // ------------------------------------------
-            if (currentCount >= limit) {
-                return res.status(403).json({
-                    error: `You have reached the limit for ${requiredPermission}. Allowed: ${limit}`,
-                });
-            }
-
-            next();
-
+            return res.status(401).json({ error: "Unauthorized" });
         } catch (err) {
-            console.error("Subscription check error:", err);
-            return res.status(500).json({ error: "Server error checking subscription." });
+            console.error("Subscription check bypassed:", err);
+            return next();
         }
     };
 };
+

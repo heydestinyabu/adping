@@ -112,7 +112,7 @@ export function CampaignsTable({
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">
-          No campaigns found. Create your first campaign to get started.
+          No WhatsApp campaigns found. Create your first campaign to get started.
         </p>
       </div>
     );
@@ -125,7 +125,7 @@ export function CampaignsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("campaigns.title")}</TableHead>
+              <TableHead>{t("campaigns.campaignName")}</TableHead>
               <TableHead>Created By</TableHead>
               <TableHead>{t("campaigns.status")}</TableHead>
               <TableHead>{t("campaigns.template")}</TableHead>

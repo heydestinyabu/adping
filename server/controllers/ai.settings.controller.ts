@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { DiployError, asyncHandler as _dHandler, diployLogger, HTTP_STATUS } from "@diploy/core";
 import { db } from "../db";
 import { eq, ne, and, inArray } from "drizzle-orm";
-import { aiSettings } from "@shared/schema";
+import { aiSettings, sites } from "@shared/schema";
 import { storage } from "../storage";
 
 // ---------------------------------------------------------------------------
@@ -297,11 +297,17 @@ export const getAISettingsDiagnostics = async (req: Request, res: Response) => {
     const triggerWords = Array.isArray(row.words) ? row.words : [];
 
     // Find associated site
-    const [site] = await db
-      .select()
-      .from(sites)
-      .where(row.siteId ? eq(sites.id, row.siteId) : eq(sites.channelId, channelId))
-      .limit(1);
+    let site: any = null;
+    try {
+      const siteRows = await db
+        .select()
+        .from(sites)
+        .where(row.siteId ? eq(sites.id, row.siteId) : eq(sites.channelId, channelId))
+        .limit(1);
+      site = siteRows[0] || null;
+    } catch (siteErr) {
+      console.warn("⚠️ Could not query site for AI diagnostics:", siteErr);
+    }
 
     return res.json({
       active: !!row.isActive,

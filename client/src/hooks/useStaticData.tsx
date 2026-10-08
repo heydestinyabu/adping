@@ -18,6 +18,14 @@ const useStaticData = () => {
     header: {
       resourcesMenuItems: [
         {
+          title: "Email Templates & Builder",
+          path: "/email-templates",
+          description: "Responsive visual email templates & builder",
+          icon: Mail,
+          image:
+            "https://images.pexels.com/photos/193003/pexels-photo-193003.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop",
+        },
+        {
           title: t("Landing.header.resourcesMenuItems.0.title"),
           path: "/templates",
           description: t("Landing.header.resourcesMenuItems.0.description"),

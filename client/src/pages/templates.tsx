@@ -395,8 +395,8 @@ export default function Templates() {
   return (
     <div className="flex-1 dots-bg min-h-screen">
       <Header
-        title={t("templates.title")}
-        subtitle={t("templates.userSubTitle")}
+        title="WhatsApp Templates"
+        subtitle="Manage your official WhatsApp message templates"
       />
       <main className="p-4 sm:p-6">
         <Card>
@@ -404,7 +404,7 @@ export default function Templates() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <CardTitle className="flex items-center text-lg sm:text-xl">
                 <FileText className="w-5 h-5 mr-2" />
-                {t("templates.mess_Temp")}
+                WhatsApp Message Templates
               </CardTitle>
               {userRole !== "superadmin" && (
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">

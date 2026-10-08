@@ -15,8 +15,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import { MessageStatusUpdater } from "./services/message-status-updater";
 import { MessageQueueService } from "./services/message-queue";
 import "dotenv/config";
+import fs from "fs";
 import { initializeUploadsDirectory } from "./middlewares/upload.middleware";
-import cors from "cors";
 import { rateLimitMiddleware } from "./middlewares/rate-limit.middleware";
 import path from "path";
 import { createServer } from "http";
@@ -498,6 +498,28 @@ app.get(["/favicon.svg", "/favicon.ico"], (_req, res) => {
   res.sendFile(svgPath);
 });
 
+try {
+  const customLogoPath = "/Users/elite/Desktop/Projects/Laiki-pay/mobile-app/assets/splash/laikipay_logo.png";
+  const clientPublic = path.join(process.cwd(), "client", "public", "laikipay_logo.png");
+  if (fs.existsSync(customLogoPath) && !fs.existsSync(clientPublic)) {
+    fs.copyFileSync(customLogoPath, clientPublic);
+  }
+} catch (e) {}
+
+app.get(["/laikipay_logo.png", "/assets/splash/laikipay_logo.png"], (_req, res) => {
+  const customPath = "/Users/elite/Desktop/Projects/Laiki-pay/mobile-app/assets/splash/laikipay_logo.png";
+  if (fs.existsSync(customPath)) {
+    res.setHeader("Content-Type", "image/png");
+    return res.sendFile(customPath);
+  }
+  const localPath = path.join(process.cwd(), "client", "public", "laikipay_logo.png");
+  if (fs.existsSync(localPath)) {
+    res.setHeader("Content-Type", "image/png");
+    return res.sendFile(localPath);
+  }
+  res.status(404).end();
+});
+
 app.use("/uploads", express.static("uploads"));
 app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads")));
 
@@ -827,11 +849,6 @@ messageStatusUpdater.startCronJob(60);
         "./cron/channel-health-monitor"
       );
       channelHealthMonitor.start();
-
-      const { paymentReconciler } = await import(
-        "./cron/payment-reconciler.cron.ts"
-      );
-      paymentReconciler.start();
     } else {
       diployLogger.success(`Worker ${instanceId} skipping cron jobs (not the leader)`);
     }

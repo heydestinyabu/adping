@@ -36,6 +36,7 @@ import {
   RefreshCw,
   ExternalLink,
 } from "lucide-react";
+import EmailProviderSettings from "@/components/settings/EmailProviderSettings";
 
 export default function EmailSendersPage() {
   const { toast } = useToast();
@@ -198,6 +199,10 @@ export default function EmailSendersPage() {
             <TabsTrigger value="domains" className="gap-2 text-xs">
               <Globe className="h-4 w-4" />
               Sending Domains ({domains.length})
+            </TabsTrigger>
+            <TabsTrigger value="provider" className="gap-2 text-xs">
+              <Server className="h-4 w-4" />
+              Delivery Provider & SMTP
             </TabsTrigger>
           </TabsList>
 
@@ -367,6 +372,11 @@ export default function EmailSendersPage() {
                 ))
               )}
             </div>
+          </TabsContent>
+
+          {/* Provider & SMTP Tab */}
+          <TabsContent value="provider" className="space-y-4">
+            <EmailProviderSettings />
           </TabsContent>
         </Tabs>
       </main>

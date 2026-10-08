@@ -12,7 +12,7 @@
  * have a stale database.  This file self-heals those databases.
  */
 
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
 import { precheckCleanupSteps } from "./db-precheck-cleanup";
 import { PROVIDER_CURRENCY_OPTIONS } from "@shared/payment-currencies";
 
@@ -576,6 +576,96 @@ const steps: MigrationStep[] = [
       END$$;
     `,
   },
+
+  {
+    description: "Update smtp_config and email_provider_configs with Mailtrap Sandbox credentials",
+    sql: `
+      DO $$
+      BEGIN
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'smtp_config') THEN
+          IF EXISTS (SELECT 1 FROM smtp_config LIMIT 1) THEN
+            UPDATE smtp_config
+            SET host = 'sandbox.smtp.mailtrap.io',
+                port = 2525,
+                secure = false,
+                "user" = 'd344d85c424e7c',
+                password = '82e50417b57e31',
+                from_name = COALESCE(NULLIF(from_name, ''), 'ADping'),
+                from_email = COALESCE(NULLIF(from_email, ''), 'test@adping.com'),
+                updated_at = NOW();
+          ELSE
+            INSERT INTO smtp_config (id, host, port, secure, "user", password, from_name, from_email, created_at, updated_at)
+            VALUES (
+              gen_random_uuid(),
+              'sandbox.smtp.mailtrap.io',
+              2525,
+              false,
+              'd344d85c424e7c',
+              '82e50417b57e31',
+              'ADping',
+              'test@adping.com',
+              NOW(),
+              NOW()
+            );
+          END IF;
+        END IF;
+
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'email_provider_configs') THEN
+          UPDATE email_provider_configs SET is_default = false WHERE is_default = true;
+
+          IF EXISTS (SELECT 1 FROM email_provider_configs WHERE id = 'mailtrap-sandbox-provider') THEN
+            UPDATE email_provider_configs
+            SET provider_type = 'smtp',
+                label = 'Mailtrap Sandbox',
+                config = '{"host":"sandbox.smtp.mailtrap.io","port":2525,"user":"d344d85c424e7c","password":"82e50417b57e31","secure":false}'::jsonb,
+                is_default = true,
+                is_active = true,
+                default_from_name = 'ADping',
+                default_from_email = 'test@adping.com',
+                updated_at = NOW()
+            WHERE id = 'mailtrap-sandbox-provider';
+          ELSE
+            INSERT INTO email_provider_configs (id, provider_type, label, config, is_default, is_active, default_from_name, default_from_email, created_at, updated_at)
+            VALUES (
+              'mailtrap-sandbox-provider',
+              'smtp',
+              'Mailtrap Sandbox',
+              '{"host":"sandbox.smtp.mailtrap.io","port":2525,"user":"d344d85c424e7c","password":"82e50417b57e31","secure":false}'::jsonb,
+              true,
+              true,
+              'ADping',
+              'test@adping.com',
+              NOW(),
+              NOW()
+            );
+          END IF;
+        END IF;
+      END $$;
+    `,
+  },
+  {
+    description: "Backfill platform column for email campaigns",
+    sql: `UPDATE campaigns SET platform = 'email' WHERE (campaign_type = 'email' OR api_type = 'email_api') AND (platform IS NULL OR platform != 'email');`,
+    logRowCount: true,
+  },
+  {
+    description: "Update platform language translations for WhatsApp Campaigns and Templates",
+    sql: `
+      UPDATE platform_languages 
+      SET translations = jsonb_set(
+        jsonb_set(
+          jsonb_set(
+            jsonb_set(translations, '{navigation,campaigns}', '"WhatsApp Campaigns"'),
+            '{navigation,templates}', '"WhatsApp Templates"'
+          ),
+          '{campaigns,title}', '"WhatsApp Campaigns"'
+        ),
+        '{templates,title}', '"WhatsApp Templates"'
+      )
+      WHERE code = 'en';
+    `,
+    logRowCount: true,
+  },
 ];
 
 /**
@@ -583,24 +673,24 @@ const steps: MigrationStep[] = [
  * report what was actually added vs already present.
  */
 async function getExistingColumns(
-  client: Awaited<ReturnType<Pool["connect"]>>
+  client: PoolClient
 ): Promise<Set<string>> {
   const { rows } = await client.query<{ key: string }>(`
     SELECT table_name || '.' || column_name AS key
     FROM information_schema.columns
     WHERE table_schema = 'public'
   `);
-  return new Set(rows.map((r) => r.key));
+  return new Set(rows.map((r: { key: string }) => r.key));
 }
 
 async function getExistingTables(
-  client: Awaited<ReturnType<Pool["connect"]>>
+  client: PoolClient
 ): Promise<Set<string>> {
   const { rows } = await client.query<{ table_name: string }>(`
     SELECT table_name FROM information_schema.tables
     WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
   `);
-  return new Set(rows.map((r) => r.table_name));
+  return new Set(rows.map((r: { table_name: string }) => r.table_name));
 }
 
 export async function runStartupMigration(pool: Pool): Promise<void> {

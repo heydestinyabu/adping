@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/auth-context";
-import AutomationFlowBuilder from "@/components/automation-flow-builder/AutomationFlowBuilder";
 import { useTranslation } from "@/lib/i18n";
 
 type Automation = {
@@ -514,12 +513,13 @@ export default function Automations() {
             </DialogDescription>
           </DialogHeader>
 
-          <AutomationFlowBuilder
-            automation={selectedAutomation}
-            channelId={activeChannel?.id}
-            onClose={handleCloseFlowBuilder}
-            onDraftSaved={refreshDrafts}
-          />
+          <div className="p-8 text-center flex flex-col items-center justify-center space-y-4">
+            <h3 className="text-lg font-semibold">Visual Flow Builder Disabled</h3>
+            <p className="text-sm text-muted-foreground max-w-md">
+              The visual bot builder canvas has been disabled to keep the messaging engine lightweight.
+            </p>
+            <Button onClick={handleCloseFlowBuilder}>Close</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

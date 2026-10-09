@@ -698,9 +698,10 @@ app.use((req, res, next) => {
     listenOptions.reusePort = true;
   }
 
-  httpServer.listen(listenOptions, async () => {
-    diployLogger.banner();
-    diployLogger.success(`Server running on port ${port}`);
+  if (!process.env.VERCEL) {
+    httpServer.listen(listenOptions, async () => {
+      diployLogger.banner();
+      diployLogger.success(`Server running on port ${port}`);
 
     // One-time data fix: mark existing unverified users as inactive
     try {
@@ -849,8 +850,11 @@ messageStatusUpdater.startCronJob(60);
         "./cron/channel-health-monitor"
       );
       channelHealthMonitor.start();
-    } else {
-      diployLogger.success(`Worker ${instanceId} skipping cron jobs (not the leader)`);
-    }
-  });
+      } else {
+        diployLogger.success(`Worker ${instanceId} skipping cron jobs (not the leader)`);
+      }
+    });
+  }
 })();
+
+export { app, httpServer };

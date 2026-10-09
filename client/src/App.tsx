@@ -25,11 +25,6 @@ const Dashboard = React.lazy(() => import("@/pages/dashboard"));
 const Contacts = React.lazy(() => import("@/pages/contacts"));
 const Campaigns = React.lazy(() => import("@/pages/campaigns"));
 const Templates = React.lazy(() => import("@/pages/templates"));
-const EmailTemplatesPage = () => null;
-const EmailCampaignsPage = () => null;
-const CreateEmailCampaignWizard = () => null;
-const EmailSendersPage = () => null;
-const EmailAnalyticsPage = () => null;
 const Inbox = React.lazy(() => import("@/pages/inbox"));
 const Automations = React.lazy(() => import("@/pages/automations"));
 const Analytics = React.lazy(() => import("@/pages/analytics"));
@@ -108,11 +103,6 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   "/channels-management": "",
   "/campaigns": "campaigns.view",
   "/templates": "templates.view",
-  "/email-templates": "templates.view",
-  "/email-campaigns": "",
-  "/email-campaigns/new": "",
-  "/email-senders": "",
-  "/email-analytics": "",
   "/inbox": "inbox.view",
   "/plans": "",
   "/plan-upgrade": "",
@@ -356,24 +346,6 @@ function ProtectedRoutes() {
               component={Templates}
               requiredPermission="templates:view"
             />
-          </Route>
-          <Route path="/email-templates">
-            <PermissionRoute
-              component={EmailTemplatesPage}
-              requiredPermission="templates:view"
-            />
-          </Route>
-          <Route path="/email-campaigns">
-            <PermissionRoute component={EmailCampaignsPage} />
-          </Route>
-          <Route path="/email-campaigns/new">
-            <PermissionRoute component={CreateEmailCampaignWizard} />
-          </Route>
-          <Route path="/email-senders">
-            <PermissionRoute component={EmailSendersPage} />
-          </Route>
-          <Route path="/email-analytics">
-            <PermissionRoute component={EmailAnalyticsPage} />
           </Route>
           <Route path="/inbox">
             <PermissionRoute

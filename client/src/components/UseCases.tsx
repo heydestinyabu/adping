@@ -24,7 +24,7 @@ const UseCases = () => {
     {
       icon: CreditCard,
       title: "Fintech & Digital Banking",
-      description: "Send instant transactional payment receipts, secure OTP codes, virtual card alerts, and monthly statements via Email and WhatsApp.",
+      description: "Send instant transactional payment receipts, secure OTP codes, virtual card alerts, and monthly statements via WhatsApp.",
       color: "from-blue-600 to-indigo-600",
       bgColor: "bg-blue-50",
       stats: {

@@ -1065,10 +1065,10 @@
             ]
         },
         "heroSec": {
-            "animatedBgGreenText": "Omnichannel Marketing Platform — WhatsApp & Email Campaigns",
+            "animatedBgGreenText": "Official WhatsApp Marketing Platform — High-Impact Campaigns",
             "headline": "Scale Your Business with",
-            "highlightText": "WhatsApp & Email Marketing",
-            "subHeadline": "Unite Meta WhatsApp Business API and high-deliverability Email Campaigns in one powerful growth suite. Build stunning visual templates, automate customer journeys, and drive conversions across every inbox.",
+            "highlightText": "WhatsApp Marketing & Automation",
+            "subHeadline": "Scale with Meta WhatsApp Business API. Send rich media templates, automate customer journeys, and drive conversions with 98%+ open rates.",
             "startTrialButton": "Start Free Trial",
             "watchDemoButton": "Watch 2-min Demo",
             "trustedByText": "Trusted by 10,000+ businesses worldwide",
@@ -1099,13 +1099,13 @@
             }
         },
         "featuresSec": {
-            "introTagline": "Omnichannel Marketing Suite",
+            "introTagline": "WhatsApp Marketing Suite",
             "headlinePre": "Everything You Need for",
-            "headlineHighlight": "WhatsApp & Email Marketing",
-            "subHeadline": "From multi-channel broadcast campaigns to AI chatbots and visual email template builders, our platform provides all the tools you need to engage customers across WhatsApp and Email.",
+            "headlineHighlight": "WhatsApp Marketing",
+            "subHeadline": "From high-speed broadcast campaigns to AI chatbots and interactive templates, our platform provides all the tools you need to engage customers on WhatsApp.",
             "demo": "Demo",
             "campaign_progress": "Campaign Progress",
-            "whatsAppAPI":"OMNICHANNEL CAMPAIGN ENGINE",
+            "whatsAppAPI":"WHATSAPP CLOUD API ENGINE",
             "featureTabs": [
                 {
                     "title": "Bulk Messaging",
@@ -1202,26 +1202,26 @@
             ]
         },
         "howItWorksSec": {
-            "introTagline": "Simple 4-Step Omnichannel Process",
+            "introTagline": "Simple 4-Step Process",
             "headlinePre": "Get Started in",
             "headlineHighlight": "Under 5 Minutes",
-            "subHeadline": "Our streamlined onboarding gets you broadcasting across WhatsApp and Email faster than any other platform",
+            "subHeadline": "Our streamlined onboarding gets you broadcasting on WhatsApp faster than any other platform",
             "steps": [
                 {
-                    "title": "Connect WhatsApp & Email Senders",
-                    "description": "Connect your Meta WhatsApp Business API and custom SMTP or SendGrid/Brevo/Resend accounts in seconds",
+                    "title": "Connect WhatsApp Business API",
+                    "description": "Connect your official Meta WhatsApp Business API in seconds",
                     "details": [
-                        "Meta WhatsApp API & Custom SMTP",
+                        "Meta WhatsApp Cloud API",
                         "One-click verification process",
-                        "SPF / DKIM deliverability support",
+                        "Official Business profile setup",
                         "Full data privacy & ownership"
                     ]
                 },
                 {
                     "title": "Import & Segment Audience",
-                    "description": "Upload customer lists with phone numbers and emails or sync directly from your CRM",
+                    "description": "Upload customer phone lists or sync directly from your CRM",
                     "details": [
-                        "CSV/Excel import with phone & email",
+                        "CSV/Excel import with phone numbers",
                         "Custom tags and behavioral segments",
                         "Smart duplicate detection",
                         "Automatic data validation"
@@ -1229,9 +1229,9 @@
                 },
                 {
                     "title": "Create & Launch Campaigns",
-                    "description": "Design responsive emails with our visual builder or craft high-converting WhatsApp broadcasts",
+                    "description": "Craft high-converting WhatsApp broadcasts with interactive buttons and rich media",
                     "details": [
-                        "Visual drag-and-drop email builder",
+                        "Interactive buttons & media templates",
                         "Pre-built fintech & marketing templates",
                         "Dynamic personalized variables",
                         "Scheduled & automated broadcasts"
@@ -1239,7 +1239,7 @@
                 },
                 {
                     "title": "Track & Optimize",
-                    "description": "Monitor unified deliverability, email open rates, click tracking, and WhatsApp read receipts",
+                    "description": "Monitor real-time delivery rates, read receipts, and button click conversions",
                     "details": [
                         "Real-time delivery & open tracking",
                         "Click-through & conversion metrics",
@@ -1253,11 +1253,11 @@
                 "nextStep": "Next Step"
             },
             "visualDemo": {
-                "whatsAppBusinessDashboard": "Omnichannel Campaign Dashboard"
+                "whatsAppBusinessDashboard": "WhatsApp Campaign Dashboard"
             },
             "cta": {
                 "readyToGetStarted": "Ready to Get Started?",
-                "joinText": "Join thousands of businesses already using our platform to scale their WhatsApp and Email marketing",
+                "joinText": "Join thousands of businesses already using our platform to scale their WhatsApp marketing",
                 "startFreeTrial": "Start Your Free Trial"
             }
         },
@@ -1474,8 +1474,8 @@
         },
         "ctaSec": {
             "introTagline": "Join 10,000+ Businesses Already Growing",
-            "headline": "Ready to Scale with WhatsApp & Email Marketing?",
-            "subHeadline": "Start your free trial today. No credit card required. Connect your Meta API and Email senders to launch omnichannel campaigns in under 5 minutes.",
+            "headline": "Ready to Scale with WhatsApp Marketing?",
+            "subHeadline": "Get started 100% free today. No credit card required. Connect your Meta WhatsApp API and launch high-impact campaigns in under 5 minutes.",
             "buttons": {
                 "startTrial": "Start Free Trial",
                 "scheduleDemo": "Schedule Demo"

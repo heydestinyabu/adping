@@ -5,7 +5,6 @@ import {
   Twitter,
   Linkedin,
   Github,
-  Mail,
   ArrowRight,
   MessageSquare,
 } from "lucide-react";
@@ -40,7 +39,6 @@ const Footer: React.FC = () => {
   const links = {
     product: [
       { name: productLinks[0] || "Features", href: "/#features" },
-      { name: "Email Marketing & Builder", href: "/email-templates" },
       { name: productLinks[1] || "How It Works", href: "/#how-it-works" },
       { name: productLinks[2] || "Use Cases", href: "/#use-cases" },
     ],
@@ -56,7 +54,7 @@ const Footer: React.FC = () => {
       { name: supportLinks[3], href: "#" },
     ],
     resources: [
-      { name: "Omnichannel Suite Showcase", href: "/#email-suite" },
+      { name: resourcesLinks[0] || "Templates", href: "/#how-it-works" },
       { name: resourcesLinks[1], href: "/case-studies" },
       { name: resourcesLinks[2], href: "/whatsapp-guide" },
       { name: resourcesLinks[3], href: "/best-practices" },
@@ -142,13 +140,6 @@ const Footer: React.FC = () => {
                 aria-label={t("Landing.footerSec.socialLinks.github")}
               >
                 <Github className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
-              </a>
-              <a
-                href="https://mail.google.com"
-                className="bg-gray-800/60 p-2.5 rounded-xl hover:bg-emerald-500/20 border border-gray-700/50 hover:border-emerald-500/30 transition-all duration-300 group hover:scale-110"
-                aria-label={t("Landing.footerSec.socialLinks.mail")}
-              >
-                <Mail className="w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors duration-300" />
               </a>
             </div>
           </div>

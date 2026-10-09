@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Play, Users, TrendingUp, Zap, Mail, Workflow, Gift } from "lucide-react";
+import { ArrowRight, Play, Users, TrendingUp, Zap, Workflow, Gift } from "lucide-react";
 import LoadingAnimation from "./LoadingAnimation";
 import { useTranslation } from "@/lib/i18n";
 import { Link } from "wouter";
 
 const TYPING_WORDS = [
-  "WhatsApp & Email Marketing",
-  "Automated Cross-Channel Funnels",
+  "WhatsApp Marketing & Broadcasts",
+  "Automated Customer Journeys",
   "100% Free Forever Platform",
-  "High Deliverability Inboxes",
+  "Official Meta Cloud API",
   "Audience Growth & Engagement",
 ];
 

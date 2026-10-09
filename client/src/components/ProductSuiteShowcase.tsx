@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "wouter";
 import {
-  Mail,
   MessageSquare,
   Workflow,
   Users,
@@ -12,7 +11,6 @@ import {
   Send,
   BarChart3,
   ArrowRight,
-  Server,
   Gift,
   Bot,
   Layers,
@@ -23,22 +21,7 @@ import {
 } from "lucide-react";
 
 export const ProductSuiteShowcase: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"whatsapp" | "email" | "automation" | "crm">("whatsapp");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (window.location.hash === "#email-suite") {
-        setActiveTab("email");
-      }
-      const onHash = () => {
-        if (window.location.hash === "#email-suite") {
-          setActiveTab("email");
-        }
-      };
-      window.addEventListener("hashchange", onHash);
-      return () => window.removeEventListener("hashchange", onHash);
-    }
-  }, []);
+  const [activeTab, setActiveTab] = useState<"whatsapp" | "automation" | "crm">("whatsapp");
 
   const tabs = [
     {
@@ -49,18 +32,11 @@ export const ProductSuiteShowcase: React.FC = () => {
       badge: "High Open Rates",
     },
     {
-      id: "email",
-      label: "Email Studio",
-      icon: Mail,
-      color: "blue",
-      badge: "99.4% Deliverability",
-    },
-    {
       id: "automation",
       label: "Smart Automations",
       icon: Workflow,
       color: "purple",
-      badge: "Cross-Channel",
+      badge: "Automated Drips",
     },
     {
       id: "crm",
@@ -72,7 +48,7 @@ export const ProductSuiteShowcase: React.FC = () => {
   ] as const;
 
   return (
-    <section id="email-suite" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden scroll-mt-16">
+    <section id="features-suite" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden scroll-mt-16">
       <div id="features-suite" className="absolute top-0 left-0 -z-10" />
       {/* Background ambient glowing orbs */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-emerald-500/10 via-blue-500/10 to-purple-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -87,14 +63,14 @@ export const ProductSuiteShowcase: React.FC = () => {
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-5">
-            The Complete Omnichannel Suite —{" "}
+            The Complete WhatsApp Marketing Suite —{" "}
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400 bg-clip-text text-transparent">
               Zero Cost, Zero Limits
             </span>
           </h2>
 
           <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
-            Everything you need to broadcast, automate, and grow your audience across WhatsApp and Email. 
+            Everything you need to broadcast, automate, and grow your audience on WhatsApp. 
             No credit card, no artificial paywalls, and no subscription fees.
           </p>
         </div>
@@ -209,91 +185,6 @@ export const ProductSuiteShowcase: React.FC = () => {
             </div>
           )}
 
-          {activeTab === "email" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Left Column: Capabilities */}
-              <div className="lg:col-span-6 space-y-6">
-                <div className="inline-flex items-center gap-2 bg-blue-500/10 text-blue-400 text-xs font-semibold px-3 py-1 rounded-full border border-blue-500/20">
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>High-Deliverability Email Studio</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
-                  Design, Broadcast & Land Directly in Primary Inboxes
-                </h3>
-                <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                  Send transactional notices, weekly newsletters, and promotional announcements with our modern visual builder and multi-SMTP engine.
-                </p>
-                <div className="space-y-3 pt-2">
-                  {[
-                    "Connect Brevo, SendGrid, Amazon SES, Resend, or your custom SMTP",
-                    "6 universal business presets: Onboarding, Sales, Newsletters, Alerts",
-                    "Automated SPF, DKIM, and DMARC verification guidance",
-                    "Granular real-time tracking for opens, clicks, and unsubscribes",
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-300">{item}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="pt-4 flex items-center gap-3">
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-md shadow-blue-600/20"
-                  >
-                    <span>Start Email Campaigns Free</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                  <span className="text-xs text-slate-400">Zero sender fees</span>
-                </div>
-              </div>
-
-              {/* Right Column: Deliverability & Analytics Mockup */}
-              <div className="lg:col-span-6">
-                <div className="bg-slate-900 rounded-2xl border border-slate-700/80 p-5 shadow-xl space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <Server className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs font-mono text-slate-300 font-semibold">SMTP Deliverability Engine</span>
-                    </div>
-                    <span className="text-[11px] bg-blue-500/20 text-blue-400 font-medium px-2 py-0.5 rounded-full border border-blue-500/30">
-                      SPF & DKIM Validated
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 text-center">
-                      <p className="text-[11px] text-slate-400">Delivery Rate</p>
-                      <p className="text-lg font-bold text-white mt-0.5">99.4%</p>
-                    </div>
-                    <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 text-center">
-                      <p className="text-[11px] text-slate-400">Avg Open Rate</p>
-                      <p className="text-lg font-bold text-emerald-400 mt-0.5">42.8%</p>
-                    </div>
-                    <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 text-center">
-                      <p className="text-[11px] text-slate-400">Click Rate</p>
-                      <p className="text-lg font-bold text-blue-400 mt-0.5">18.2%</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-800/50 p-3.5 rounded-xl border border-slate-700/40 text-xs text-slate-300 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Supported SMTP Providers:</span>
-                      <span className="text-emerald-400 font-medium">All Unlocked</span>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap text-[11px]">
-                      {["Brevo", "SendGrid", "Amazon SES", "Resend", "Custom SMTP", "Mailgun"].map((p) => (
-                        <span key={p} className="bg-slate-700/70 px-2 py-1 rounded-md text-slate-200">
-                          {p}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === "automation" && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Left Column: Capabilities */}
@@ -303,15 +194,15 @@ export const ProductSuiteShowcase: React.FC = () => {
                   <span>Visual Workflow Orchestration</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
-                  Connect WhatsApp & Email in Automated Sequences
+                  Automate WhatsApp Sequences and Customer Journeys
                 </h3>
                 <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                  Trigger smart drip campaigns based on customer behaviors, form submissions, sign-ups, or custom webhooks with zero coding required.
+                  Trigger smart auto-replies and follow-up drip sequences based on customer behaviors, form submissions, sign-ups, or custom webhooks.
                 </p>
                 <div className="space-y-3 pt-2">
                   {[
-                    "Multi-channel logic: Send Email, wait 24 hours, then follow up on WhatsApp",
-                    "Smart condition branches (opened email, clicked link, replied)",
+                    "Multi-step logic: Send Template, wait 24 hours, then follow up",
+                    "Smart condition branches (replied, clicked CTA button, keywords)",
                     "Abandoned checkout and re-engagement trigger sequences",
                     "Unlimited active workflows and unlimited journey runs",
                   ].map((item, idx) => (
@@ -364,8 +255,8 @@ export const ProductSuiteShowcase: React.FC = () => {
                         2
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-white">Action: Send Welcome Email</p>
-                        <p className="text-[11px] text-slate-400">Template: Welcome & Getting Started Checklist</p>
+                        <p className="text-xs font-semibold text-white">Action: Send WhatsApp Welcome Template</p>
+                        <p className="text-[11px] text-slate-400">Template: Welcome & Getting Started Options</p>
                       </div>
                     </div>
 
@@ -378,7 +269,7 @@ export const ProductSuiteShowcase: React.FC = () => {
                         3
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-white">If No Email Click After 24 Hours:</p>
+                        <p className="text-xs font-semibold text-white">If No Reply After 24 Hours:</p>
                         <p className="text-[11px] text-emerald-400 font-medium">→ Automatically Send WhatsApp VIP Reminder</p>
                       </div>
                     </div>
@@ -439,14 +330,14 @@ export const ProductSuiteShowcase: React.FC = () => {
 
                   <div className="space-y-2">
                     {[
-                      { name: "Sarah Jenkins", email: "sarah@acmecorp.com", phone: "+1 (555) 234-5678", tag: "VIP Customer" },
-                      { name: "Michael Chen", email: "m.chen@startup.io", phone: "+44 7911 123456", tag: "Active Subscriber" },
-                      { name: "Elena Rostova", email: "elena@designhub.co", phone: "+49 151 23456789", tag: "Newsletter" },
+                      { name: "Sarah Jenkins", phone: "+1 (555) 234-5678", tag: "VIP Customer" },
+                      { name: "Michael Chen", phone: "+44 7911 123456", tag: "Active Subscriber" },
+                      { name: "Elena Rostova", phone: "+49 151 23456789", tag: "Customer" },
                     ].map((contact, i) => (
                       <div key={i} className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 flex items-center justify-between">
                         <div>
                           <p className="text-xs font-bold text-white">{contact.name}</p>
-                          <p className="text-[11px] text-slate-400">{contact.email} • {contact.phone}</p>
+                          <p className="text-[11px] text-slate-400">{contact.phone}</p>
                         </div>
                         <span className="text-[10px] bg-slate-700 text-emerald-300 px-2 py-0.5 rounded-md font-medium">
                           {contact.tag}
@@ -473,7 +364,7 @@ export const ProductSuiteShowcase: React.FC = () => {
                 Our Free Forever Promise
               </h4>
               <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                Every business deserves access to enterprise-grade omnichannel tools. Enjoy unlimited broadcasts, contacts, and templates with 0 subscription fees.
+                Every business deserves access to enterprise-grade WhatsApp marketing tools. Enjoy unlimited broadcasts, contacts, and templates with 0 subscription fees.
               </p>
             </div>
             <Link

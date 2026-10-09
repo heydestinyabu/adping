@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, MessageCircle, Zap, Shield, Clock, Mail, Workflow } from "lucide-react";
+import { ArrowRight, MessageCircle, Zap, Shield, Clock, Workflow } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { Link } from "wouter";
 

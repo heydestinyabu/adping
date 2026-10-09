@@ -6,7 +6,7 @@ import {
   Code,
   Calculator,
   Briefcase,
-  Mail,
+  MessageSquare,
   Users,
   Zap,
 } from "lucide-react";
@@ -17,14 +17,6 @@ const useStaticData = () => {
   const staticData = {
     header: {
       resourcesMenuItems: [
-        {
-          title: "Email Templates & Builder",
-          path: "/email-templates",
-          description: "Responsive visual email templates & builder",
-          icon: Mail,
-          image:
-            "https://images.pexels.com/photos/193003/pexels-photo-193003.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop",
-        },
         {
           title: t("Landing.header.resourcesMenuItems.0.title"),
           path: "/templates",
@@ -72,7 +64,7 @@ const useStaticData = () => {
           title: t("Landing.header.aboutMenuItems.1.title"),
           path: "/contact",
           description: t("Landing.header.aboutMenuItems.1.description"),
-          icon: Mail,
+          icon: MessageSquare,
           image:
             "https://images.pexels.com/photos/4386466/pexels-photo-4386466.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop",
         },

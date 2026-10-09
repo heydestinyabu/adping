@@ -8,7 +8,6 @@ import {
   ChevronDown,
   Users,
   Briefcase,
-  Mail,
   Zap,
   BookOpen,
   Calculator,
@@ -247,25 +246,6 @@ const Header = () => {
                 Features
               </a>
 
-              <a
-                href="/#email-suite"
-                onClick={(e) => {
-                  const el = document.getElementById("email-suite");
-                  if (el) {
-                    e.preventDefault();
-                    el.scrollIntoView({ behavior: "smooth" });
-                    window.location.hash = "email-suite";
-                  }
-                }}
-                className="px-3.5 py-2 rounded-lg text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-blue-900/20 transition-all duration-300 flex items-center gap-1.5 group cursor-pointer"
-              >
-                <Mail className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
-                <span>Email Suite</span>
-                <span className="text-[10px] uppercase font-bold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full">
-                  New
-                </span>
-              </a>
-
               <div
                 className="relative group"
                 onMouseEnter={() => setShowAboutMega(true)}
@@ -471,27 +451,6 @@ const Header = () => {
             >
               {t("Landing.header.Navlinks.0")}
             </Link>
-
-            <a
-              href="/#email-suite"
-              className="flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-sm text-blue-600 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/30 hover:bg-blue-100/60 transition-all duration-300 cursor-pointer"
-              onClick={() => {
-                setIsMenuOpen(false);
-                const el = document.getElementById("email-suite");
-                if (el) {
-                  el.scrollIntoView({ behavior: "smooth" });
-                  window.location.hash = "email-suite";
-                }
-              }}
-            >
-              <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-blue-600" />
-                <span>Email Suite & Templates</span>
-              </div>
-              <span className="text-[10px] uppercase font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full">
-                New
-              </span>
-            </a>
 
             <div>
               <button

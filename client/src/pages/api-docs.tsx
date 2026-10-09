@@ -23,7 +23,6 @@ import {
   Shield,
   Webhook,
   Info,
-  Mail,
 } from "lucide-react";
 import Header from "@/components/layout/header";
 import { useTranslation } from "@/lib/i18n";
@@ -420,56 +419,6 @@ const sections: Section[] = [
         description: "Delete a webhook permanently",
         response: JSON.stringify(
           { success: true, data: { message: "Webhook deleted successfully" } },
-          null,
-          2
-        ),
-      },
-    ],
-  },
-  {
-    id: "email",
-    title: "Email Marketing",
-    icon: <Mail className="w-5 h-5" />,
-    endpoints: [
-      {
-        method: "POST",
-        path: "/api/v1/email/send",
-        description: "Send a transactional or marketing email",
-        note: "Sends an email using the active provider configured in Email Settings.",
-        body: JSON.stringify(
-          {
-            to: "customer@example.com",
-            subject: "Your Order Receipt",
-            html: "<h1>Thank you for your order!</h1><p>...</p>",
-            text: "Thank you for your order!...",
-          },
-          null,
-          2
-        ),
-        response: JSON.stringify(
-          { success: true, data: { messageId: "msg_xxx", status: "sent" } },
-          null,
-          2
-        ),
-      },
-      {
-        method: "POST",
-        path: "/api/v1/email/campaigns",
-        description: "Trigger an email campaign to a group or all contacts",
-        body: JSON.stringify(
-          {
-            name: "Winter Sale 2026",
-            subject: "Massive Discounts Inside!",
-            emailTemplateId: 1,
-            emailSenderId: 2,
-            audienceType: "group",
-            audienceParams: { groupId: "grp_123" }
-          },
-          null,
-          2
-        ),
-        response: JSON.stringify(
-          { success: true, data: { campaignId: "camp_xxx", status: "queued" } },
           null,
           2
         ),

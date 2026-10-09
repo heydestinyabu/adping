@@ -176,7 +176,7 @@ const Integrations = () => {
         features: [
           "Visual pipeline",
           "Activity reminders",
-          "Email integration",
+          "WhatsApp sync",
           "Mobile app",
         ],
         category: "Sales CRM",
@@ -198,20 +198,20 @@ const Integrations = () => {
       {
         name: "Mailchimp",
         logo: "https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
-        description: "Email marketing platform with audience sync",
+        description: "Audience marketing platform with contact sync",
         features: [
           "Audience segmentation",
-          "Email campaigns",
+          "Broadcast workflows",
           "Marketing automation",
           "Analytics",
         ],
-        category: "Email Marketing",
+        category: "Audience Marketing",
         popular: true,
       },
       {
         name: "ConvertKit",
         logo: "https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
-        description: "Creator-focused email marketing with automation",
+        description: "Creator-focused audience platform with automation",
         features: [
           "Visual automations",
           "Tagging system",
@@ -235,7 +235,7 @@ const Integrations = () => {
       {
         name: "Klaviyo",
         logo: "https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
-        description: "E-commerce focused email and SMS marketing",
+        description: "E-commerce customer messaging and SMS marketing",
         features: [
           "E-commerce integration",
           "Predictive analytics",

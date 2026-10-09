@@ -8,7 +8,6 @@ import {
   SettingsIcon,
   Database,
   BotIcon,
-  Mail,
   Bell,
   Globe,
   ScrollText,
@@ -16,7 +15,6 @@ import {
   Users,
   Key,
   Palette,
-  Store,
   Server
 } from "lucide-react";
 import { ChannelSettings } from "@/components/settings/ChannelSettings";
@@ -26,10 +24,8 @@ import { GeneralSettings } from "@/components/settings/GeneralSettings";
 import StorageSettings from "@/components/settings/StorageSettings";
 import AISettings from "@/components/settings/AISettings";
 import { useAuth } from "@/contexts/auth-context";
-import EcommerceSettings from "@/components/settings/EcommerceSettings";
 
 import { useTranslation } from "@/lib/i18n";
-import SMTPSettings from "@/components/settings/SmtpSettings";
 import { EmbeddedSignupSettings } from "@/components/settings/EmbeddedSignupSettings";
 import NotificationTemplatesSettings from "@/components/settings/NotificationTemplatesSettings";
 import NotificationPreferences from "@/components/settings/NotificationPreferences";
@@ -38,8 +34,6 @@ import LanguageManagement from "@/pages/LanguageManagement";
 import Logs from "@/pages/logs";
 import UserSupportTicketsNew from "@/pages/user-support-tickets";
 import TeamPage from "@/pages/team";
-import EmailProviderSettings from "@/components/settings/EmailProviderSettings";
-import EmailSenderSettings from "@/components/settings/EmailSenderSettings";
 
 const tabTriggerClass =
   "flex items-center gap-1.5 whitespace-nowrap text-xs h-8 rounded-md px-2 sm:h-9 sm:px-2.5 sm:text-sm shrink-0";
@@ -140,16 +134,6 @@ export default function Settings() {
                     <span>{t("settings.storage_setting.tabName")}</span>
                   </TabsTrigger>
 
-                  <TabsTrigger value="smtp_setting" className={tabTriggerClass}>
-                    <Mail className="w-4 h-4 shrink-0" />
-                    <span>{t("settings.tabs.smtp")}</span>
-                  </TabsTrigger>
-
-                  <TabsTrigger value="email_providers" className={tabTriggerClass}>
-                    <Server className="w-4 h-4 shrink-0" />
-                    <span>Email Providers</span>
-                  </TabsTrigger>
-
                   <TabsTrigger value="webhooks" className={tabTriggerClass}>
                     <Webhook className="w-4 h-4 shrink-0" />
                     <span>{t("settings.webhook_setting.tabName")}</span>
@@ -175,15 +159,6 @@ export default function Settings() {
                     <span>{t("settings.tabs.appearance")}</span>
                   </TabsTrigger>
 
-
-                  <TabsTrigger
-                    value="ecommerce"
-                    className={tabTriggerClass}
-                  >
-                    <Store className="w-4 h-4 shrink-0" />
-                    <span>E-Commerce</span>
-                  </TabsTrigger>
-
                   <TabsTrigger value="ai_setting" className={tabTriggerClass}>
                     <BotIcon className="w-4 h-4 shrink-0" />
                     <span>{t("settings.ai_setting.tabName")}</span>
@@ -196,16 +171,6 @@ export default function Settings() {
                   <TabsTrigger value="whatsapp" className={tabTriggerClass}>
                     <Smartphone className="w-4 h-4 shrink-0" />
                     <span>{t("settings.channel_setting.tabName")}</span>
-                  </TabsTrigger>
-
-                  <TabsTrigger value="email_senders" className={tabTriggerClass}>
-                    <Mail className="w-4 h-4 shrink-0" />
-                    <span>Email Identity</span>
-                  </TabsTrigger>
-
-                  <TabsTrigger value="email_providers" className={tabTriggerClass}>
-                    <Server className="w-4 h-4 shrink-0" />
-                    <span>Email Providers & SMTP</span>
                   </TabsTrigger>
 
                   <TabsTrigger value="ai_setting" className={tabTriggerClass}>
@@ -251,12 +216,7 @@ export default function Settings() {
               <TabsContent value="storage_setting">
                 <StorageSettings />
               </TabsContent>
-              <TabsContent value="smtp_setting">
-                <SMTPSettings />
-              </TabsContent>
-              <TabsContent value="email_providers">
-                <EmailProviderSettings />
-              </TabsContent>
+
               <TabsContent value="webhooks">
                 <WebhookSettings />
               </TabsContent>
@@ -275,10 +235,6 @@ export default function Settings() {
               <TabsContent value="appearance">
                 <AppearanceSettings />
               </TabsContent>
-
-              <TabsContent value="ecommerce">
-  <EcommerceSettings />
-</TabsContent>
             </>
           )}
 
@@ -286,14 +242,6 @@ export default function Settings() {
             <>
               <TabsContent value="whatsapp">
                 <ChannelSettings />
-              </TabsContent>
-
-              <TabsContent value="email_senders">
-                <EmailSenderSettings />
-              </TabsContent>
-
-              <TabsContent value="email_providers">
-                <EmailProviderSettings />
               </TabsContent>
 
               <TabsContent value="message_logs">

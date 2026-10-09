@@ -3,7 +3,7 @@ import { DiployError, asyncHandler as _dHandler, diployLogger, HTTP_STATUS } fro
 import { storage } from "../storage";
 import { contacts, users, insertContactSchema } from "@shared/schema";
 import { AppError, asyncHandler } from "../middlewares/error.middleware";
-import { db, dbRead } from "server/db";
+import { db, dbRead } from "../db";
 import { and, eq, ilike, inArray, or, sql } from "drizzle-orm";
 
 

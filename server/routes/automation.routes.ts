@@ -24,9 +24,9 @@ import {
   triggerMessageReceived,
   seedAutomationTemplates
 } from "../controllers/automation.controller";
-import { cleanupExpiredExecutions, getAllPendingExecutions } from "server/controllers/webhooks.controller";
-import { handleDigitalOceanUpload, upload } from "server/middlewares/upload.middleware";
-import { requireSubscription } from "server/middlewares/requireSubscription";
+import { cleanupExpiredExecutions, getAllPendingExecutions } from "../controllers/webhooks.controller";
+import { handleDigitalOceanUpload, upload } from "../middlewares/upload.middleware";
+import { requireSubscription } from "../middlewares/requireSubscription";
 
 // Schema for automation + nodes (used for builder save)
 const automationWithNodesSchema = z.object({

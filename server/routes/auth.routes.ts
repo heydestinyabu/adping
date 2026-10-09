@@ -6,7 +6,7 @@ import { eq, and, sql } from "drizzle-orm";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { validateRequest } from "../middlewares/validateRequest.middleware";
-import { resolveUserPermissions } from "server/utils/role-permissions";
+import { resolveUserPermissions } from "../utils/role-permissions";
 import country from "../config/country.json"
 import { sendOTPEmail } from "../services/email.service"
 import { otpVerifications } from "@shared/schema";

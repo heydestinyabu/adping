@@ -11,7 +11,7 @@ import {
   moveContactsBetweenGroups,
   getGroupContactCount,
 } from "../controllers/group.controller";
-import { requireAuth } from "server/middlewares/auth.middleware";
+import { requireAuth } from "../middlewares/auth.middleware";
 
 export function registerGroupRoutes(app: Express) {
   app.post("/api/groups", requireAuth, createGroup);

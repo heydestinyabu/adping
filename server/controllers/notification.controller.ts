@@ -2,8 +2,8 @@ import { notifications, sentNotifications, notificationTemplates, userNotificati
 import { DiployError, asyncHandler as _dHandler, diployLogger, HTTP_STATUS } from "@diploy/core";
 import { and, desc, eq, inArray, or, isNull, sql } from "drizzle-orm";
 import { Request, Response } from "express";
-import { db } from "server/db";
-import { getUserNotificationPreferences, updateUserNotificationPreference } from "server/services/notification.service";
+import { db } from "../db";
+import { getUserNotificationPreferences, updateUserNotificationPreference } from "../services/notification.service";
 
 /**
  * Admin: Create a notification (draft)

@@ -59,7 +59,7 @@ function truncateInteractiveBody(
 const MEDIA_FILE_NOT_FOUND = "MEDIA_FILE_NOT_FOUND";
 import { sendBusinessMessage } from "../services/messageService";
 import { WhatsAppApiService } from "./whatsapp-api";
-import { storage } from "server/storage";
+import { storage } from "../storage";
 import { resolvePublicOrigin } from "./public-origin";
 import { randomUUID } from "crypto";
 import fs from "fs";

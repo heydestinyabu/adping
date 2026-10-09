@@ -19,15 +19,15 @@ import { searchTrainingData } from "../services/training.service";
 import { AppError, asyncHandler } from "../middlewares/error.middleware";
 import crypto from "crypto";
 import { startAutomationExecutionFunction } from "./automation.controller";
-import { triggerService } from "server/services/automation-execution-service";
-import { WhatsAppApiService } from "server/services/whatsapp-api";
+import { triggerService } from "../services/automation-execution-service";
+import { WhatsAppApiService } from "../services/whatsapp-api";
 import { getWhatsAppError } from "@shared/whatsapp-error-codes";
-import { db } from "server/db";
+import { db } from "../db";
 import { and, desc, eq, ne, sql } from "drizzle-orm";
-import { triggerNotification, triggerThrottledNotification, NOTIFICATION_EVENTS } from "server/services/notification.service";
+import { triggerNotification, triggerThrottledNotification, NOTIFICATION_EVENTS } from "../services/notification.service";
 import { users } from "@shared/schema";
 import axios from "axios";
-import { createAIClient, getDefaultEndpoint, getDefaultModel, type AIProvider } from "server/utils/ai-provider";
+import { createAIClient, getDefaultEndpoint, getDefaultModel, type AIProvider } from "../utils/ai-provider";
 import {
   getStripe,
   getRazorpay,

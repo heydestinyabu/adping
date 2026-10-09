@@ -1,5 +1,5 @@
 import path from "path";
-import { requireAuth, requireRole } from "server/middlewares/auth.middleware";
+import { requireAuth, requireRole } from "../middlewares/auth.middleware";
 import { diployLogger, HTTP_STATUS, DIPLOY_BRAND } from "@diploy/core";
 import {
   getSMTPConfigHandler,

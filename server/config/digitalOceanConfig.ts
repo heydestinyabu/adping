@@ -1,7 +1,7 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { storageSettings } from "@shared/schema";
 import { eq } from "drizzle-orm";
-import { db } from "server/db";
+import { db } from "../db";
 
 const CACHE_TTL_MS = 600_000;
 const CACHE_KEY = "do_client";

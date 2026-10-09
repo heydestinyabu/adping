@@ -125,10 +125,12 @@ let appReadyPromise: Promise<void> | null = null;
 export async function getApp(): Promise<express.Express> {
   if (!appReadyPromise) {
     appReadyPromise = (async () => {
-      try {
-        await runStartupMigration(pool);
-      } catch (err) {
-        console.warn("[startup-migration] Startup migration warning:", err);
+      if (!process.env.VERCEL) {
+        try {
+          await runStartupMigration(pool);
+        } catch (err) {
+          console.warn("[startup-migration] Startup migration warning:", err);
+        }
       }
 
       await registerRoutes(app);

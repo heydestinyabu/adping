@@ -1,10 +1,10 @@
-import { requireAuth, requireRole } from "server/middlewares/auth.middleware";
+import { requireAuth, requireRole } from "../middlewares/auth.middleware";
 import { diployLogger, HTTP_STATUS, DIPLOY_BRAND } from "@diploy/core";
 import type { Express, Request, Response } from "express";
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { db } from "server/db";
+import { db } from "../db";
 import { supportTickets, ticketMessages, users } from "@shared/schema";
-import { triggerNotification, NOTIFICATION_EVENTS } from "server/services/notification.service";
+import { triggerNotification, NOTIFICATION_EVENTS } from "../services/notification.service";
 
 export function registerTicketsRoutes(app: Express) {
   //===============

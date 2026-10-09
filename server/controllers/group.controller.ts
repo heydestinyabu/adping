@@ -2,7 +2,7 @@ import { groups, contacts } from "@shared/schema";
 import { DiployError, asyncHandler as _dHandler, diployLogger, HTTP_STATUS } from "@diploy/core";
 import { eq, and, sql, or } from "drizzle-orm";
 import { Request, Response } from "express";
-import { db } from "server/db";
+import { db } from "../db";
 
 export const createGroup = async (req: Request, res: Response) => {
   try {

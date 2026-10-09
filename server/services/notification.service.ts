@@ -7,7 +7,7 @@ import {
   userNotificationPreferences,
   users,
 } from "@shared/schema";
-import { db } from "server/db";
+import { db } from "../db";
 import nodemailer from "nodemailer";
 import { resolvePublicOrigin } from "./public-origin";
 

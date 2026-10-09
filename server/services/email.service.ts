@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { diployLogger, HTTP_STATUS, DIPLOY_BRAND } from "@diploy/core";
-import { getSMTPConfig } from "server/controllers/smtp.controller";
+import { getSMTPConfig } from "../controllers/smtp.controller";
 import { getFirstPanelConfig, getPanelConfigs } from "./panel.config";
 import { cacheGet, cacheInvalidate, CACHE_KEYS, CACHE_TTL } from './cache';
 import { resolvePublicOrigin } from "./public-origin";

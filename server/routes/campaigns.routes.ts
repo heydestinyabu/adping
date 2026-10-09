@@ -4,7 +4,7 @@ import { campaignsController } from "../controllers/campaigns.controller";
 import { extractChannelId } from "../middlewares/channel.middleware";
 import { requireAuth, requirePermission } from "../middlewares/auth.middleware";
 import { PERMISSIONS } from "@shared/schema";
-import { requireSubscription } from "server/middlewares/requireSubscription";
+import { requireSubscription } from "../middlewares/requireSubscription";
 
 export function registerCampaignRoutes(app: Express) {
   // Get all campaigns

@@ -7,7 +7,7 @@ import { insertConversationSchema,PERMISSIONS } from "@shared/schema";
 import { extractChannelId } from "../middlewares/channel.middleware";
 import { storage } from "../storage";
 import { requireAuth, requirePermission } from "../middlewares/auth.middleware";
-import { cancelConversationAutomation, getConversationAutomationStatus } from "server/controllers/webhooks.controller";
+import { cancelConversationAutomation, getConversationAutomationStatus } from "../controllers/webhooks.controller";
 
 export function registerConversationRoutes(app: Express) {
   // Get unread count

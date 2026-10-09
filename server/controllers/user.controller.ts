@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 
 import { otpVerifications } from "@shared/schema";
 import { sendOTPEmailVerify } from "../services/email.service";
-import { resolveUserPermissions } from "server/utils/role-permissions";
+import { resolveUserPermissions } from "../utils/role-permissions";
 import { z } from "zod";
 
 // Validation schema for user self/admin updates. Applied before pickAllowed so

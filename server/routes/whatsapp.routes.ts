@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { diployLogger, HTTP_STATUS, DIPLOY_BRAND } from "@diploy/core";
 import { storage } from "../storage";
 import { WhatsAppApiService } from "../services/whatsapp-api";
-import { channelHealthMonitor } from "server/cron/channel-health-monitor";
+import { channelHealthMonitor } from "../cron/channel-health-monitor";
 import { handleDigitalOceanUpload, upload, validateUploadedFiles } from "../middlewares/upload.middleware";
 import { requireAuth } from "../middlewares/auth.middleware";
 import { requireSubscription } from "../middlewares/requireSubscription";

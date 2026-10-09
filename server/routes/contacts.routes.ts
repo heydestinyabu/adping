@@ -5,7 +5,7 @@ import { validateRequest } from "../middlewares/validation.middleware";
 import { insertContactSchema , PERMISSIONS } from "@shared/schema";
 import { extractChannelId } from "../middlewares/channel.middleware";
 import { requireAuth, requirePermission } from "../middlewares/auth.middleware";
-import { requireSubscription } from "server/middlewares/requireSubscription";
+import { requireSubscription } from "../middlewares/requireSubscription";
 
 export function registerContactRoutes(app: Express) {
   // Get all contacts

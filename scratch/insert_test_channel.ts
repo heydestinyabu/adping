@@ -1,1 +1,0 @@
-// Cleared temporary scratch script
